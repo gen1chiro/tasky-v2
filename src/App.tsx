@@ -1,11 +1,12 @@
+import LogIn from "./components/LogIn.tsx";
 
 function App() {
 
-  return (
-    <>
-      <div className='bg-red-400'>Hello World</div>
-    </>
-  )
+    return (
+        <>
+            <LogIn/>
+        </>
+    )
 }
 
 export default App
