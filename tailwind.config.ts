@@ -1,0 +1,1 @@
+//dummy tailwind config file for intellisense
