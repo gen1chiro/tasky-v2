@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useAuth } from "../contexts/AuthContext.tsx"
-import { handleSignIn, handleSignInWithGoogle } from "../firebase/auth.ts";
+import { handleSignIn, handleSignInWithGoogle } from "../firebase/auth.ts"
 import GoogleIcon from '../assets/Google_Favicon.png'
-import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom"
 
 const LogIn = () => {
     const [email, setEmail] = useState<string>('')
