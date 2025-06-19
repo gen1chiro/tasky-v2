@@ -2,21 +2,25 @@ import React, { useState } from 'react'
 import { useAuth } from "../contexts/AuthContext.tsx"
 import { handleSignIn, handleSignInWithGoogle } from "../firebase/auth.ts"
 import GoogleIcon from '../assets/Google_Favicon.png'
-import { Navigate } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 
 const LogIn = () => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false)
+    const [isLoggingInWithGoogle, setIsLoggingInWithGoogle] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
-    const {isUserLoggedIn} = useAuth()
+    const { isUserLoggedIn } = useAuth()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError(null)
+        setIsLoggingIn(true)
         try {
             await handleSignIn(email, password)
         } catch (err) {
             console.error(err)
+            setIsLoggingIn(false)
             clearInputFields()
             if (err.code === "auth/wrong-password") {
                 setError("Incorrect password. Please try again.")
@@ -31,10 +35,13 @@ const LogIn = () => {
     }
 
     const handleClickGoogle = async () => {
+        setError(null)
+        setIsLoggingInWithGoogle(true)
         try {
             await handleSignInWithGoogle()
         } catch (err) {
-            console.error(err);
+            console.error(err)
+            setIsLoggingInWithGoogle(false)
             clearInputFields()
             if (err.code === "auth/popup-closed-by-user") {
                 setError("Google login popup was closed. Please try again.")
@@ -78,25 +85,34 @@ const LogIn = () => {
                     {error && <p className='text-red-500 text-sm'>{error}</p>}
                     <button
                         type='submit'
-                        className='w-full bg-black text-white font-semibold py-3 mt-4 rounded-full hover:bg-zinc-800'
+                        disabled={isLoggingIn}
+                        className={`w-full bg-black text-white text-sm font-semibold py-2 mt-4 rounded-full hover:bg-zinc-800 ${isLoggingIn ? 'opacity-50 cursor-not-allowed animate-pulse' : ''}`}
                     >
-                        Log In
+                        {isLoggingIn ? 'Logging In...' : 'Log In'}
                     </button>
+                    <div className='flex items-center w-full'>
+                        <hr className='flex-1 h-[1px] border-gray-300'/>
+                        <h1 className='px-2 text-sm text-gray-400'>OR</h1>
+                        <hr className='flex-1 h-[1px] border-gray-300'/>
+                    </div>
                     <button
                         type='button'
                         onClick={handleClickGoogle}
-                        className='w-full flex items-center justify-center gap-2 bg-gray-100 text-black font-semibold py-3 rounded-full hover:bg-gray-200'
+                        className={`w-full flex items-center justify-center gap-2 bg-gray-100 text-black text-sm font-semibold py-2 rounded-full hover:bg-gray-200 ${isLoggingInWithGoogle ? 'opacity-50 cursor-not-allowed animate-pulse' : ''}`}
                     >
                         <img
                             src={GoogleIcon}
                             alt='google logo'
                             className='aspect-square w-5'
                         />
-                        Log in with Google
+                        {isLoggingInWithGoogle ? 'Logging In...' : 'Continue with Google'}
                     </button>
                 </form>
-                <p className='mt-8 text-xs text-gray-600'>Don't have an account?<span
-                    className='font-semibold text-black'> Sign Up</span></p>
+                <p className='mt-8 text-xs text-gray-600'>Don't have an account?
+                    <Link to="/sign-up" className='font-semibold text-black hover:underline'>
+                        <span> Sign Up</span>
+                    </Link>
+                </p>
             </div>
         </>
 )
