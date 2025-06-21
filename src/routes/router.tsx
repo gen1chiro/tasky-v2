@@ -2,7 +2,7 @@ import { createBrowserRouter, createRoutesFromElements, Route } from "react-rout
 import Landing from "../pages/Landing.tsx"
 import LogIn from "../components/LogIn.tsx"
 import ProtectedRoute from "../uitls/ProtectedRoute.tsx"
-import MainApplication from "../pages/MainApplication.tsx"
+import Dashboard from "../pages/Dashboard.tsx"
 import SignUp from "../components/SignUp.tsx"
 
 
@@ -14,10 +14,9 @@ const router = createBrowserRouter(
             <Route path="/sign-up" element={<SignUp />} />
             <Route path="/app" element={
                 <ProtectedRoute>
-                    <MainApplication />
+                    <Dashboard />
                 </ProtectedRoute>
-            }
-            />
+            }/>
         </Route>
     )
 )
