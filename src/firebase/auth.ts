@@ -5,7 +5,7 @@ import {
 } from "firebase/auth"
 import { auth } from "./firebase"
 import { GoogleAuthProvider } from "firebase/auth"
-import { saveUserToDatabase } from "./data.ts"
+import { saveUserToDatabase } from "./firestore/users.ts"
 
 export const handleSignUp = async (email: string, password: string) => {
     const userCredentials = await createUserWithEmailAndPassword(auth, email, password)
