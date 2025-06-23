@@ -1,5 +1,5 @@
-import { db } from '../firebase.ts'
-import { collection, addDoc, getDocs, serverTimestamp, query, where } from 'firebase/firestore'
+import { db, auth } from '../firebase.ts'
+import { doc, collection, addDoc, getDocs, serverTimestamp, query, where, getDoc} from 'firebase/firestore'
 import type {Board} from "../../types/types.ts";
 
 export const createBoard = async (userUID: string, boardName: string) => {
@@ -40,7 +40,7 @@ export const getBoardsByUser = async (userUID: string) => {
 
         const snapshot = await getDocs(q)
 
-        return  snapshot.docs.map((doc) => ({
+        return snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data() as Omit<Board, "id">
         }))
@@ -48,5 +48,37 @@ export const getBoardsByUser = async (userUID: string) => {
     } catch (err) {
         console.error('Error fetching boards:', err)
         throw new Error('Failed to fetch boards')
+    }
+}
+
+export const boardLoader = async ({params}: {params: {boardId: string}}) => {
+    const {boardId} = params
+    const user = await new Promise<typeof auth.currentUser>((resolve) => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe()
+            resolve(user)
+        })
+    })
+
+    try {
+        const boardDoc = await getDoc(doc(db, 'boards', boardId))
+        const data = boardDoc.data() as Board
+
+        if (!boardDoc.exists()) {
+            throw new Error('Board not found')
+        }
+
+        if (data.owner !== user?.uid) {
+            throw new Error('Unauthorized access to this board')
+        }
+
+        const columnSnapshot = await getDocs(collection(db, 'boards', boardId, 'columns'))
+        return columnSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+        }))
+    } catch (err) {
+        console.error('Error loading board:', err)
+        throw new Error('Failed to load board')
     }
 }

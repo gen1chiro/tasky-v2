@@ -2,12 +2,14 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext.tsx"
 import { handleSignOut } from "../firebase/auth.ts"
 import { createBoard, getBoardsByUser } from "../firebase/firestore/boards.ts"
+import { useNavigate } from "react-router-dom"
 import type { Board } from "../types/types.ts"
 
 const Dashboard = () => {
     const [boards, setBoards] = useState<Board[]>([])
     const [boardTitle, setBoardTitle] = useState<string>('')
     const { user } = useAuth()
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchBoards = async () => {
@@ -30,6 +32,7 @@ const Dashboard = () => {
         <div key={board.id} className='bg-white text-black p-4 rounded-lg'>
             <h2 className='text-lg font-bold'>{board.name}</h2>
             <p>Created at: {board.createdAt?.toDate().toLocaleString()}</p>
+            <button onClick={() => navigate(board.id)}>Open</button>
         </div>
     ))
 
