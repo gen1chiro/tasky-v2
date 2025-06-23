@@ -1,6 +1,7 @@
-import { db, auth } from '../firebase.ts'
+import { db } from '../firebase.ts'
 import { doc, collection, addDoc, getDocs, serverTimestamp, query, where, getDoc} from 'firebase/firestore'
-import type {Board} from "../../types/types.ts";
+import type { Board } from "../../types/types.ts"
+import requireAuth from "../../uitls/requireAuth.ts"
 
 export const createBoard = async (userUID: string, boardName: string) => {
     try {
@@ -53,12 +54,7 @@ export const getBoardsByUser = async (userUID: string) => {
 
 export const boardLoader = async ({params}: {params: {boardId: string}}) => {
     const {boardId} = params
-    const user = await new Promise<typeof auth.currentUser>((resolve) => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            unsubscribe()
-            resolve(user)
-        })
-    })
+    const user = await requireAuth()
 
     try {
         const boardDoc = await getDoc(doc(db, 'boards', boardId))
