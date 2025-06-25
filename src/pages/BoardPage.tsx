@@ -1,15 +1,20 @@
-import { useLoaderData } from "react-router-dom"
+import { useState } from "react"
+import { useLoaderData, useParams } from "react-router-dom"
+import {addColumn, deleteColumn, renameColumn} from "../firebase/firestore/boards.ts";
 
 const BoardPage = () => {
+    const [columnName, setColumnName] = useState<string>('')
     const columns = useLoaderData()
-
-    console.log(columns)
+    const { boardId } = useParams<{ boardId: string }>()
 
     const columnElements = columns.map((column) => {
         return (
             <div key={column.id}>
                 <h2>{column.name}</h2>
-                {/* Render tasks or other details here */}
+                <div className='flex flex-col gap-2'>
+                    <button onClick={() => renameColumn(boardId as string, column.id, columnName)}>Rename</button>
+                    <button onClick={() => deleteColumn(boardId as string, column.id)}>Delete</button>
+                </div>
             </div>
         )
     })
@@ -17,6 +22,8 @@ const BoardPage = () => {
     return (
         <div>
             <h1>Board</h1>
+            <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)} className='border-black border'/>
+            <button onClick={() => addColumn(boardId as string, columnName)}>Add</button>
             <div className='flex gap-4'>
                 {columnElements}
             </div>

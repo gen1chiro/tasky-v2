@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext.tsx"
 import { handleSignOut } from "../firebase/auth.ts"
-import { createBoard, getBoardsByUser } from "../firebase/firestore/boards.ts"
+import {createBoard, getBoardsByUser, deleteBoard, renameBoard} from "../firebase/firestore/boards.ts"
 import { useNavigate } from "react-router-dom"
 import type { Board } from "../types/types.ts"
 
@@ -32,7 +32,11 @@ const Dashboard = () => {
         <div key={board.id} className='bg-white text-black p-4 rounded-lg'>
             <h2 className='text-lg font-bold'>{board.name}</h2>
             <p>Created at: {board.createdAt?.toDate().toLocaleString()}</p>
-            <button onClick={() => navigate(board.id)}>Open</button>
+            <div className='flex flex-col gap-2'>
+                <button onClick={() => navigate(board.id)}>Open</button>
+                <button onClick={() => deleteBoard(board.id)}>Delete</button>
+                <button onClick={() => renameBoard(board.id, boardTitle)}>Rename</button>
+            </div>
         </div>
     ))
 
