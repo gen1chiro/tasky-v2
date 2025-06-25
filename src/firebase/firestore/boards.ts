@@ -1,5 +1,5 @@
 import { db } from '../firebase.ts'
-import { doc, collection, addDoc, getDocs, serverTimestamp, query, where, getDoc, deleteDoc, updateDoc } from 'firebase/firestore'
+import { doc, collection, addDoc, getDocs, serverTimestamp, query, where, getDoc, deleteDoc, updateDoc, orderBy } from 'firebase/firestore'
 import type { Board } from "../../types/types.ts"
 import requireAuth from "../../uitls/requireAuth.ts"
 
@@ -55,7 +55,7 @@ export const getBoardsByUser = async (userUID: string) => {
     try {
         const q = query(
             collection(db, 'boards'),
-            where('owner', '==', userUID)
+            where('owner', '==', userUID),
         )
 
         const snapshot = await getDocs(q)
@@ -87,7 +87,9 @@ export const boardLoader = async ({params}: {params: {boardId: string}}) => {
             throw new Error('Unauthorized access to this board')
         }
 
-        const columnSnapshot = await getDocs(collection(db, 'boards', boardId, 'columns'))
+        const columnRef = collection(db, 'boards', boardId, 'columns')
+        const columnQuery = query(columnRef, orderBy('position', 'asc'))
+        const columnSnapshot = await getDocs(columnQuery)
         return columnSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data()
@@ -104,6 +106,8 @@ export const addColumn = async (boardId: string, columnName: string) => {
         const columnSnapshot = await getDocs(columnsCollectionRef)
 
         const newColumnPosition = columnSnapshot.docs.length
+
+        console.log(newColumnPosition)
 
         await addDoc(columnsCollectionRef, {
             name: columnName,

@@ -4,6 +4,8 @@ import { handleSignOut } from "../firebase/auth.ts"
 import {createBoard, getBoardsByUser, deleteBoard, renameBoard} from "../firebase/firestore/boards.ts"
 import { useNavigate } from "react-router-dom"
 import type { Board } from "../types/types.ts"
+import {collection, onSnapshot, where, query} from "firebase/firestore";
+import {db} from "../firebase/firebase.ts";
 
 const Dashboard = () => {
     const [boards, setBoards] = useState<Board[]>([])
@@ -19,7 +21,22 @@ const Dashboard = () => {
             }
         }
         fetchBoards()
-    }, [user]);
+    }, [user])
+
+    useEffect(() => {
+        const boardsCollectionRef = collection(db, 'boards')
+        const boardsQuery = query(boardsCollectionRef, where('owner', '==', user?.uid))
+
+        const unsubscribe = onSnapshot(boardsQuery, (snapshot) => {
+            const updatedBoards = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data()
+            }))
+            setBoards(updatedBoards as Board[])
+        })
+
+        return () => unsubscribe()
+    }, [user])
 
     const handleAddBoard = async () => {
         if (user) {
