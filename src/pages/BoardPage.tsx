@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom"
 import { addColumn, deleteColumn, renameColumn } from "../firebase/firestore/boards.ts"
 import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
+import reindexDocs from "../firebase/uitls/reindexDocs.ts";
 
 const BoardPage = () => {
     const loaderData = useLoaderData()
@@ -14,12 +15,17 @@ const BoardPage = () => {
         const columnsCollectionRef = collection(db, 'boards', boardId as string, 'columns')
         const columnsQuery = query(columnsCollectionRef, orderBy('position', 'asc'))
 
-        const unsubscribe = onSnapshot(columnsQuery, (snapshot) => {
+        const unsubscribe = onSnapshot(columnsQuery, async (snapshot) => {
             const updatedColumns = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data()
             }))
             setColumns(updatedColumns)
+
+            const needsReindexing = updatedColumns.some((col, index) => col.position !== index)
+            if (needsReindexing) {
+                await reindexDocs(columnsCollectionRef, updatedColumns)
+            }
         })
 
         return () => unsubscribe()

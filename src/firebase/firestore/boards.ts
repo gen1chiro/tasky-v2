@@ -1,7 +1,7 @@
 import { db } from '../firebase.ts'
 import { doc, collection, addDoc, getDocs, serverTimestamp, query, where, getDoc, deleteDoc, updateDoc, orderBy } from 'firebase/firestore'
 import type { Board } from "../../types/types.ts"
-import requireAuth from "../../uitls/requireAuth.ts"
+import requireAuth from "../uitls/requireAuth.ts"
 
 export const createBoard = async (userUID: string, boardName: string) => {
     try {

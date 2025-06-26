@@ -1,4 +1,4 @@
-import { auth } from "../firebase/firebase.ts"
+import { auth } from "../firebase.ts"
 
 const requireAuth = async () => {
     return new Promise((resolve) => {
