@@ -1,9 +1,9 @@
 import { createBrowserRouter, createRoutesFromElements, Route, Outlet } from "react-router-dom"
 import Landing from "../pages/Landing.tsx"
-import LogIn from "../components/LogIn.tsx"
-import ProtectedRoute from "../uitls/ProtectedRoute.tsx"
+import LogIn from "../components/auth/LogIn.tsx"
+import ProtectedRoute from "../components/utils/ProtectedRoute.tsx"
 import Dashboard from "../pages/Dashboard.tsx"
-import SignUp from "../components/SignUp.tsx"
+import SignUp from "../components/auth/SignUp.tsx"
 import BoardPage from "../pages/BoardPage.tsx"
 import { boardLoader } from "../firebase/firestore/boards.ts"
 

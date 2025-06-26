@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Link, Navigate } from "react-router-dom"
-import { useAuth } from "../contexts/AuthContext.tsx"
-import { handleSignUp } from "../firebase/auth.ts"
+import { useAuth } from "../../contexts/AuthContext.tsx"
+import { handleSignUp } from "../../firebase/auth.ts"
 
 const SignUp = () => {
     const [email, setEmail] = useState<string>('')
