@@ -4,18 +4,21 @@ import { addColumn, deleteColumn, renameColumn } from "../firebase/firestore/col
 import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
 import reindexDocs from "../firebase/uitls/reindexDocs.ts";
+import {addTask, deleteTask, editTask} from "../firebase/firestore/tasks.ts";
 
 const BoardPage = () => {
     const loaderData = useLoaderData()
     const [columns, setColumns] = useState(loaderData.columns || [])
+    const [tasks, setTasks] = useState(loaderData.tasks || [])
     const [columnName, setColumnName] = useState<string>('')
+    const [taskName, setTaskName] = useState<string>('')
     const { boardId } = useParams<{ boardId: string }>()
 
     useEffect(() => {
         const columnsCollectionRef = collection(db, 'boards', boardId as string, 'columns')
         const columnsQuery = query(columnsCollectionRef, orderBy('position', 'asc'))
 
-        const unsubscribe = onSnapshot(columnsQuery, async (snapshot) => {
+        const unsubscribeColumns = onSnapshot(columnsQuery, async (snapshot) => {
             const updatedColumns = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data()
@@ -28,16 +31,67 @@ const BoardPage = () => {
             }
         })
 
-        return () => unsubscribe()
+
+        return () => unsubscribeColumns()
     }, [boardId])
+
+    useEffect(() => {
+        if (!columns.length) return
+
+        const taskUnsubscribers = new Map()
+
+        columns.forEach(column => {
+            const tasksRef = collection(db, 'boards', boardId as string, 'columns', column.id, 'tasks')
+            const tasksQuery = query(tasksRef, orderBy('position', 'asc'))
+
+            const unsubscribe = onSnapshot(tasksQuery, async (snapshot) => {
+                const columnTasks = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    columnId: column.id,
+                    ...doc.data()
+                }))
+
+                const needsReindexing = columnTasks.some((task, index) => task.position !== index)
+                if (needsReindexing) {
+                    await reindexDocs(tasksRef, columnTasks)
+                }
+
+                setTasks(prevTasks => {
+                    const otherTasks = prevTasks.filter(task => task.columnId !== column.id)
+                    return [...otherTasks, ...columnTasks]
+                })
+            })
+
+            taskUnsubscribers.set(column.id, unsubscribe)
+        })
+
+        return () => {
+            taskUnsubscribers.forEach(unsubscribe => unsubscribe())
+        }
+    }, [boardId, columns])
 
     const columnElements = columns.map((column) => {
         return (
-            <div key={column.id}>
-                <h2>{column.name}</h2>
-                <div className='flex flex-col gap-2'>
-                    <button onClick={() => renameColumn(boardId as string, column.id, columnName)}>Rename</button>
-                    <button onClick={() => deleteColumn(boardId as string, column.id)}>Delete</button>
+            <div key={column.id} className='flex flex-col items-center justify-center gap-4 w-80 bg-slate-300 p-4'>
+                <h2 className='text-center font-bold'>{column.name}</h2>
+                <div className='flex justify-center gap-2'>
+                    <button onClick={() => renameColumn(boardId as string, column.id, columnName)} className='bg-white rounded-md px-2'>Rename</button>
+                    <button onClick={() => deleteColumn(boardId as string, column.id)} className='bg-white rounded-md px-2'>Delete</button>
+                </div>
+                <div className='w-full flex gap-2 justify-center'>
+                    <input type='text' value={taskName} onChange={(e) => setTaskName(e.target.value)} className='bg-white flex-shrink'/>
+                    <button onClick={() => addTask(boardId as string, column.id, taskName)} className='bg-white rounded-md px-2'>add</button>
+                </div>
+                <div className="w-full bg-white">
+                    {tasks
+                        .filter((task) => task.columnId === column.id)
+                        .map((task) => (
+                            <div key={task.id}>
+                                <h1>{task.name}</h1>
+                                <button onClick={() => deleteTask(boardId as string, column.id, task.id)}>delete</button>
+                                <button onClick={() => editTask(boardId as string, column.id, task.id, taskName)}>rename</button>
+                            </div>
+                        ))}
                 </div>
             </div>
         )

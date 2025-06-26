@@ -1,0 +1,43 @@
+import { collection, getDocs, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore"
+import { db } from '../firebase.ts'
+
+export const addTask = async (boardId: string, columnId: string, taskName: string) => {
+    try {
+        const taskCollectionRef = collection(db, 'boards', boardId, 'columns', columnId, 'tasks')
+        const tasksSnapshot = await getDocs(taskCollectionRef)
+
+        const newTaskPosition = tasksSnapshot.docs.length
+
+        await addDoc(taskCollectionRef, {
+            name: taskName,
+            columnId: columnId,
+            position: newTaskPosition,
+            createdAt: serverTimestamp(),
+        })
+    } catch (err) {
+        console.error('Error adding task:', err)
+        throw new Error('Failed to add task')
+    }
+}
+
+export const editTask = async (boardId: string, columnId: string, taskId: string, newName) => {
+    try {
+        const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', taskId)
+        await updateDoc(taskDocRef, {
+            name: newName
+        })
+    } catch (err) {
+        console.error('Error editing task:', err)
+        throw new Error('Failed to edit task')
+    }
+}
+
+export const deleteTask = async (boardId: string, columnId: string, taskId: string) => {
+    try {
+        const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', taskId)
+        await deleteDoc(taskDocRef)
+    } catch (err) {
+        console.error('Error deleting task:', err)
+        throw new Error('Failed to delete task')
+    }
+}

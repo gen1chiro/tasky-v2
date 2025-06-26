@@ -8,8 +8,6 @@ export const addColumn = async (boardId: string, columnName: string) => {
 
         const newColumnPosition = columnSnapshot.docs.length
 
-        console.log(newColumnPosition)
-
         await addDoc(columnsCollectionRef, {
             name: columnName,
             position: newColumnPosition,
