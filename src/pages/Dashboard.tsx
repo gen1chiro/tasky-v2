@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext.tsx"
 import { handleSignOut } from "../firebase/auth.ts"
-import {createBoard, getBoardsByUser, deleteBoard, renameBoard} from "../firebase/firestore/boards.ts"
+import { createBoard, getBoardsByUser, deleteBoard, renameBoard } from "../firebase/firestore/boards.ts"
 import { useNavigate } from "react-router-dom"
 import type { Board } from "../types/types.ts"
 import {collection, onSnapshot, where, query} from "firebase/firestore";
-import {db} from "../firebase/firebase.ts";
+import { db } from "../firebase/firebase.ts";
 
 const Dashboard = () => {
     const [boards, setBoards] = useState<Board[]>([])

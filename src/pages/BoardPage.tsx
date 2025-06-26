@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
-import { addColumn, deleteColumn, renameColumn } from "../firebase/firestore/boards.ts"
+import { addColumn, deleteColumn, renameColumn } from "../firebase/firestore/columns.ts"
 import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
 import reindexDocs from "../firebase/uitls/reindexDocs.ts";
