@@ -82,7 +82,7 @@ const LogIn = () => {
                         className={`w-full p-2 border-b focus:outline-0 focus:border-b-2 ${error ? 'border-red-500' : ''}`}
                         required
                     />
-                    {error && <p className='text-red-500 text-sm'>{error}</p>}
+                    {error && <p className='w-full text-red-500 text-xs text-left'>{error}</p>}
                     <button
                         type='submit'
                         disabled={isLoggingIn}
