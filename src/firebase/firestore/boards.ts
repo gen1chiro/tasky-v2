@@ -87,43 +87,39 @@ export const boardLoader = async ({params}: { params: { boardId: string } }) => 
     const {boardId} = params
     const user = await requireAuth()
 
-    try {
-        const boardDoc = await getDoc(doc(db, 'boards', boardId))
-        const data = boardDoc.data() as Board
 
-        if (!boardDoc.exists()) {
-            throw new Error('Board not found')
-        }
+    const boardDoc = await getDoc(doc(db, 'boards', boardId))
+    const data = boardDoc.data() as Board
 
-        if (data.owner !== user?.uid) {
-            throw new Error('Unauthorized access to this board')
-        }
-
-        const columnRef = collection(db, 'boards', boardId, 'columns')
-        const columnQuery = query(columnRef, orderBy('position', 'asc'))
-        const columnSnapshot = await getDocs(columnQuery)
-        const columns = columnSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data()
-        }))
-
-        const tasks = (await Promise.all(
-            columnSnapshot.docs.map(async (doc) => {
-                const tasksRef = collection(db, 'boards', boardId, 'columns', doc.id, 'tasks')
-                const taskQuery = query(tasksRef, orderBy('position', 'asc'))
-                const taskSnapshot = await getDocs(taskQuery)
-
-                return taskSnapshot.docs.map((taskDoc) => ({
-                        id: taskDoc.id,
-                        ...taskDoc.data()
-                    })
-                )
-            })
-        )).flat()
-
-        return {columns, tasks}
-    } catch (err) {
-        console.error('Error loading board:', err)
-        throw new Error('Failed to load board')
+    if (!boardDoc.exists()) {
+        throw new Response('Not Found', {status: 404})
     }
+
+    if (data.owner !== user?.uid) {
+        throw new Response('Forbidden', {status: 403})
+    }
+
+    const columnRef = collection(db, 'boards', boardId, 'columns')
+    const columnQuery = query(columnRef, orderBy('position', 'asc'))
+    const columnSnapshot = await getDocs(columnQuery)
+    const columns = columnSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+    }))
+
+    const tasks = (await Promise.all(
+        columnSnapshot.docs.map(async (doc) => {
+            const tasksRef = collection(db, 'boards', boardId, 'columns', doc.id, 'tasks')
+            const taskQuery = query(tasksRef, orderBy('position', 'asc'))
+            const taskSnapshot = await getDocs(taskQuery)
+
+            return taskSnapshot.docs.map((taskDoc) => ({
+                    id: taskDoc.id,
+                    ...taskDoc.data()
+                })
+            )
+        })
+    )).flat()
+
+    return {columns, tasks}
 }
