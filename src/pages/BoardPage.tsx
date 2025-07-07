@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
+import { DndContext, type DragEndEvent } from "@dnd-kit/core"
 import { addColumn, deleteColumn, renameColumn } from "../firebase/firestore/columns.ts"
 import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
 import reindexDocs from "../firebase/uitls/reindexDocs.ts";
-import {addTask, deleteTask, editTask} from "../firebase/firestore/tasks.ts";
+import { addTask } from "../firebase/firestore/tasks.ts";
+import Task from "../components/Task.tsx";
 
 const BoardPage = () => {
     const loaderData = useLoaderData()
@@ -62,6 +64,7 @@ const BoardPage = () => {
                 })
             })
 
+            console.log(columns, tasks)
             taskUnsubscribers.set(column.id, unsubscribe)
         })
 
@@ -69,6 +72,14 @@ const BoardPage = () => {
             taskUnsubscribers.forEach(unsubscribe => unsubscribe())
         }
     }, [boardId, columns])
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event
+
+        if (!over) return
+
+        console.log(active.id, over.id)
+    }
 
     const columnElements = columns.map((column) => {
         return (
@@ -86,11 +97,7 @@ const BoardPage = () => {
                     {tasks
                         .filter((task) => task.columnId === column.id)
                         .map((task) => (
-                            <div key={task.id}>
-                                <h1>{task.name}</h1>
-                                <button onClick={() => deleteTask(boardId as string, column.id, task.id)}>delete</button>
-                                <button onClick={() => editTask(boardId as string, column.id, task.id, taskName)}>rename</button>
-                            </div>
+                            <Task task={task} boardId={boardId} column={column} taskName={taskName}/>
                         ))}
                 </div>
             </div>
@@ -99,12 +106,15 @@ const BoardPage = () => {
 
     return (
         <div>
-            <h1>Board</h1>
-            <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)} className='border-black border'/>
-            <button onClick={() => addColumn(boardId as string, columnName)}>Add</button>
-            <div className='flex gap-4'>
-                {columnElements}
-            </div>
+            <DndContext onDragEnd={handleDragEnd}>
+                <h1>Board</h1>
+                <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)}
+                       className='border-black border'/>
+                <button onClick={() => addColumn(boardId as string, columnName)}>Add</button>
+                <div className='flex gap-4'>
+                    {columnElements}
+                </div>
+            </DndContext>
         </div>
     )
 }

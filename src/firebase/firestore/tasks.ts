@@ -1,5 +1,6 @@
 import { collection, getDocs, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore"
 import { db } from '../firebase.ts'
+import type { Task } from "../../types/types.ts"
 
 export const addTask = async (boardId: string, columnId: string, taskName: string) => {
     try {
@@ -20,11 +21,11 @@ export const addTask = async (boardId: string, columnId: string, taskName: strin
     }
 }
 
-export const editTask = async (boardId: string, columnId: string, taskId: string, newName) => {
+export const editTask = async (boardId: string, columnId: string, taskId: string, newValue, key: keyof Task) => {
     try {
         const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', taskId)
-        await updateDoc(taskDocRef, {
-            name: newName
+        await updateDoc<Task>(taskDocRef, {
+            [key]: newValue
         })
     } catch (err) {
         console.error('Error editing task:', err)

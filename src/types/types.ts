@@ -6,3 +6,10 @@ export type Board = {
     owner: string
     createdAt: Timestamp
 }
+
+export type Task = {
+    columnId: string
+    createdAt: Timestamp
+    name: string
+    position: number
+}
