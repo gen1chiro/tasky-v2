@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 import { DndContext, type DragEndEvent } from "@dnd-kit/core"
-import { addColumn, deleteColumn, renameColumn } from "../firebase/firestore/columns.ts"
+import { addColumn } from "../firebase/firestore/columns.ts"
 import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
-import reindexDocs from "../firebase/uitls/reindexDocs.ts";
-import { addTask } from "../firebase/firestore/tasks.ts";
-import Task from "../components/Task.tsx";
+import reindexDocs from "../firebase/uitls/reindexDocs.ts"
+import Column from "../components/Column.tsx"
 
 const BoardPage = () => {
     const loaderData = useLoaderData()
@@ -79,28 +78,24 @@ const BoardPage = () => {
         if (!over) return
 
         console.log(active.id, over.id)
+
+        const taskId = active.id
+        const columnId = over.id
+
+        setTasks((prevTasks) =>
+            prevTasks.map(task =>
+                task.id === taskId ?
+                    {
+                       ...task,
+                       columnId: columnId
+                    } : task
+            )
+        )
     }
 
     const columnElements = columns.map((column) => {
         return (
-            <div key={column.id} className='flex flex-col items-center justify-center gap-4 w-80 bg-slate-300 p-4'>
-                <h2 className='text-center font-bold'>{column.name}</h2>
-                <div className='flex justify-center gap-2'>
-                    <button onClick={() => renameColumn(boardId as string, column.id, columnName)} className='bg-white rounded-md px-2'>Rename</button>
-                    <button onClick={() => deleteColumn(boardId as string, column.id)} className='bg-white rounded-md px-2'>Delete</button>
-                </div>
-                <div className='w-full flex gap-2 justify-center'>
-                    <input type='text' value={taskName} onChange={(e) => setTaskName(e.target.value)} className='bg-white flex-shrink'/>
-                    <button onClick={() => addTask(boardId as string, column.id, taskName)} className='bg-white rounded-md px-2'>add</button>
-                </div>
-                <div className="w-full bg-white">
-                    {tasks
-                        .filter((task) => task.columnId === column.id)
-                        .map((task) => (
-                            <Task task={task} boardId={boardId} column={column} taskName={taskName}/>
-                        ))}
-                </div>
-            </div>
+            <Column boardId={boardId} column={column} taskName={taskName} columnName={columnName} setTaskName={setTaskName} tasks={tasks}/>
         )
     })
 
