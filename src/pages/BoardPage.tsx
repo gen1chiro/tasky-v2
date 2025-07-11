@@ -6,6 +6,7 @@ import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
 import reindexDocs from "../firebase/uitls/reindexDocs.ts"
 import Column from "../components/Column.tsx"
+import {editTask} from "../firebase/firestore/tasks.ts";
 
 const BoardPage = () => {
     const loaderData = useLoaderData()
@@ -72,12 +73,10 @@ const BoardPage = () => {
         }
     }, [boardId, columns])
 
-    const handleDragEnd = (event: DragEndEvent) => {
+    const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event
 
         if (!over) return
-
-        console.log(active.id, over.id)
 
         const taskId = active.id
         const columnId = over.id
@@ -91,11 +90,14 @@ const BoardPage = () => {
                     } : task
             )
         )
+
+        const task = tasks.find(task => task.id === taskId)
+        //await editTask(boardId as string, task.columnId, task.id, columnId, 'columnId')
     }
 
     const columnElements = columns.map((column) => {
         return (
-            <Column boardId={boardId} column={column} taskName={taskName} columnName={columnName} setTaskName={setTaskName} tasks={tasks}/>
+            <Column key={column.id} boardId={boardId} column={column} taskName={taskName} columnName={columnName} setTaskName={setTaskName} tasks={tasks}/>
         )
     })
 

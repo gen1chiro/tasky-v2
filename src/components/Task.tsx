@@ -1,7 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { deleteTask, editTask } from "../firebase/firestore/tasks.ts";
 
-const Task = ({task, boardId, column, taskName}) => {
+const Task = ({task, boardId, taskName}) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: task.id,
     })
@@ -13,18 +13,20 @@ const Task = ({task, boardId, column, taskName}) => {
         : undefined
 
     return (
-        <div key={task.id}
-             style={style}
-             ref={setNodeRef}
-             {...attributes}
-             {...listeners}
-             className="p-2 rounded-md shadow-md flex flex-col items-center gap-2 bg-slate-200"
-        >
-            <h1>{task.name}</h1>
-            <button onClick={() => deleteTask(boardId, column.id, task.id)}>delete
+        <div>
+            <div
+                style={style}
+                ref={setNodeRef}
+                {...attributes}
+                {...listeners}
+                className="p-2 rounded-md shadow-md flex flex-col items-center gap-2 bg-slate-200"
+            >
+                <h1>{task.name}</h1>
+            </div>
+            <button onClick={() => deleteTask(boardId, task.columnId, task.id)}>delete
             </button>
             <button
-                onClick={() => editTask(boardId, column.id, task.id, taskName, "name")}>rename
+                onClick={() => editTask(boardId, task.columnId, task.id, taskName, "name")}>rename
             </button>
         </div>
     )

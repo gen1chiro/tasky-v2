@@ -31,7 +31,7 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}) => 
                 {tasks
                     .filter((task) => task.columnId === column.id)
                     .map((task) => (
-                        <Task task={task} boardId={boardId} column={column} taskName={taskName}/>
+                        <Task key={task.id} task={task} boardId={boardId} column={column} taskName={taskName}/>
                     ))}
             </div>
         </div>
