@@ -6,7 +6,7 @@ import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
 import reindexDocs from "../firebase/uitls/reindexDocs.ts"
 import Column from "../components/Column.tsx"
-import {editTask} from "../firebase/firestore/tasks.ts";
+import {addTask, deleteTask} from "../firebase/firestore/tasks.ts";
 
 const BoardPage = () => {
     const loaderData = useLoaderData()
@@ -68,6 +68,8 @@ const BoardPage = () => {
             taskUnsubscribers.set(column.id, unsubscribe)
         })
 
+        console.log('run')
+
         return () => {
             taskUnsubscribers.forEach(unsubscribe => unsubscribe())
         }
@@ -81,6 +83,9 @@ const BoardPage = () => {
         const taskId = active.id
         const columnId = over.id
 
+        const task = tasks.find(task => task.id === taskId)
+        if (task.columnId === columnId) return
+
         setTasks((prevTasks) =>
             prevTasks.map(task =>
                 task.id === taskId ?
@@ -91,8 +96,8 @@ const BoardPage = () => {
             )
         )
 
-        const task = tasks.find(task => task.id === taskId)
-        //await editTask(boardId as string, task.columnId, task.id, columnId, 'columnId')
+        await deleteTask(boardId as string, task.columnId, taskId as string)
+        await addTask(boardId as string, columnId as string, task.name)
     }
 
     const columnElements = columns.map((column) => {
