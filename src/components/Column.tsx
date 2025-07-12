@@ -1,19 +1,47 @@
 import { useDroppable } from "@dnd-kit/core"
-import { deleteColumn, renameColumn } from "../firebase/firestore/columns.ts"
-import { addTask } from "../firebase/firestore/tasks.ts"
+import {useSortable} from "@dnd-kit/sortable"
+import {CSS} from "@dnd-kit/utilities"
+import {deleteColumn, editColumn} from "../firebase/firestore/columns.ts"
+import {addTask} from "../firebase/firestore/tasks.ts"
 import Task from "./Task.tsx"
+import type { Column } from "../types/types.ts"
 
-
-const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}) => {
-    const { setNodeRef } = useDroppable({
+const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {column: Column}) => {
+    const {setNodeRef: setDroppableRef} = useDroppable({
         id: column.id
     })
 
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition
+    } = useSortable({
+        id: column.id,
+        data: {
+            type: 'column'
+        }
+    })
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    }
+
     return (
-        <div className='flex flex-col items-center justify-center gap-4 w-80 bg-slate-300 p-4'>
+        <div
+            style={style}
+            ref={setNodeRef}
+            className='flex flex-col items-center justify-center gap-4 w-80 bg-slate-300 p-4'>
+            <div
+                {...attributes}
+                {...listeners}
+            >drag
+            </div>
             <h2 className='text-center font-bold'>{column.name}</h2>
             <div className='flex justify-center gap-2'>
-                <button onClick={() => renameColumn(boardId as string, column.id, columnName)}
+                <button onClick={() => editColumn(boardId as string, column.id, columnName, "name")}
                         className='bg-white rounded-md px-2'>Rename
                 </button>
                 <button onClick={() => deleteColumn(boardId as string, column.id)}
@@ -27,7 +55,7 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}) => 
                         className='bg-white rounded-md px-2'>add
                 </button>
             </div>
-            <div ref={setNodeRef} className="w-full bg-white min-h-80">
+            <div ref={setDroppableRef} className="w-full bg-white min-h-80">
                 {tasks
                     .filter((task) => task.columnId === column.id)
                     .map((task) => (
@@ -35,6 +63,7 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}) => 
                     ))}
             </div>
         </div>
+
     )
 }
 

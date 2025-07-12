@@ -13,3 +13,10 @@ export type Task = {
     name: string
     position: number
 }
+
+export type Column = {
+    id: string
+    name: string
+    position: number
+    createdAt: Timestamp
+}

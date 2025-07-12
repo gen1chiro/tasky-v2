@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
-import { DndContext, type DragEndEvent } from "@dnd-kit/core"
-import { addColumn } from "../firebase/firestore/columns.ts"
+import {DndContext, type DragEndEvent} from "@dnd-kit/core"
+import { arrayMove, SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable"
+import {addColumn, editColumn} from "../firebase/firestore/columns.ts"
 import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
 import reindexDocs from "../firebase/uitls/reindexDocs.ts"
 import Column from "../components/Column.tsx"
-import {addTask, deleteTask} from "../firebase/firestore/tasks.ts";
+import { addTask, deleteTask } from "../firebase/firestore/tasks.ts"
 
 const BoardPage = () => {
     const loaderData = useLoaderData()
@@ -26,13 +27,7 @@ const BoardPage = () => {
                 ...doc.data()
             }))
             setColumns(updatedColumns)
-
-            const needsReindexing = updatedColumns.some((col, index) => col.position !== index)
-            if (needsReindexing) {
-                await reindexDocs(columnsCollectionRef, updatedColumns)
-            }
         })
-
 
         return () => unsubscribeColumns()
     }, [boardId])
@@ -80,24 +75,36 @@ const BoardPage = () => {
 
         if (!over) return
 
-        const taskId = active.id
-        const columnId = over.id
+        const isColumnDrag = active.data?.current?.type === 'column'
 
-        const task = tasks.find(task => task.id === taskId)
-        if (task.columnId === columnId) return
+        if (isColumnDrag) {
+            const { active, over } = event
+            if (!over || active.id === over.id) return
 
-        setTasks((prevTasks) =>
-            prevTasks.map(task =>
-                task.id === taskId ?
-                    {
-                       ...task,
-                       columnId: columnId
-                    } : task
+            const oldIndex = columns.findIndex(col => col.id === active.id)
+            const newIndex = columns.findIndex(col => col.id === over.id)
+
+            const newColumns = arrayMove(columns, oldIndex, newIndex)
+            setColumns(newColumns)
+
+            await Promise.all(
+                newColumns.map((col, index) =>
+                    editColumn(boardId as string, col.id, index, "position")
+                )
             )
-        )
+        } else {
+            const task = tasks.find(task => task.id === active.id)
+            if (!task || task.columnId === over.id) return
 
-        await deleteTask(boardId as string, task.columnId, taskId as string)
-        await addTask(boardId as string, columnId as string, task.name)
+            setTasks((prevTasks) =>
+                prevTasks.map(t =>
+                    t.id === active.id ? { ...t, columnId: over.id as string } : t
+                )
+            )
+
+            await deleteTask(boardId as string, task.columnId, active.id as string)
+            await addTask(boardId as string, over.id as string, task.name)
+        }
     }
 
     const columnElements = columns.map((column) => {
@@ -113,9 +120,11 @@ const BoardPage = () => {
                 <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)}
                        className='border-black border'/>
                 <button onClick={() => addColumn(boardId as string, columnName)}>Add</button>
-                <div className='flex gap-4'>
-                    {columnElements}
-                </div>
+                <SortableContext items={columns.map(column => column.id)} strategy={horizontalListSortingStrategy}>
+                    <div className='flex gap-4 bg-slate-400'>
+                        {columnElements}
+                    </div>
+                </SortableContext>
             </DndContext>
         </div>
     )

@@ -13,9 +13,8 @@ const Task = ({task, boardId, taskName}) => {
         : undefined
 
     return (
-        <div>
+        <div style={style}>
             <div
-                style={style}
                 ref={setNodeRef}
                 {...attributes}
                 {...listeners}

@@ -1,5 +1,6 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp, updateDoc } from "firebase/firestore";
-import { db } from "../firebase.ts";
+import { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp, updateDoc } from "firebase/firestore"
+import { db } from "../firebase.ts"
+import type { Column } from "../../types/types.ts"
 
 export const addColumn = async (boardId: string, columnName: string) => {
     try {
@@ -29,11 +30,11 @@ export const deleteColumn = async (boardId: string, columnId: string) => {
     }
 }
 
-export const renameColumn = async (boardId: string, columnId: string, newName) => {
+export const editColumn = async (boardId: string, columnId: string, newValue, key: keyof Column) => {
     try {
         const columnDocRef = doc(db, 'boards', boardId, 'columns', columnId)
-        await updateDoc(columnDocRef, {
-            name: newName
+        await updateDoc<Column>(columnDocRef, {
+            [key]: newValue
         })
     } catch (err) {
         console.error('Error renaming column:', err)
