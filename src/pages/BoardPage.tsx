@@ -5,7 +5,6 @@ import { arrayMove, SortableContext, horizontalListSortingStrategy } from "@dnd-
 import {addColumn, editColumn} from "../firebase/firestore/columns.ts"
 import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
-import reindexDocs from "../firebase/uitls/reindexDocs.ts"
 import Column from "../components/Column.tsx"
 import { addTask, deleteTask } from "../firebase/firestore/tasks.ts"
 
@@ -48,11 +47,6 @@ const BoardPage = () => {
                     ...doc.data()
                 }))
 
-                const needsReindexing = columnTasks.some((task, index) => task.position !== index)
-                if (needsReindexing) {
-                    await reindexDocs(tasksRef, columnTasks)
-                }
-
                 setTasks(prevTasks => {
                     const otherTasks = prevTasks.filter(task => task.columnId !== column.id)
                     return [...otherTasks, ...columnTasks]
@@ -62,8 +56,6 @@ const BoardPage = () => {
             console.log(columns, tasks)
             taskUnsubscribers.set(column.id, unsubscribe)
         })
-
-        console.log('run')
 
         return () => {
             taskUnsubscribers.forEach(unsubscribe => unsubscribe())
@@ -98,7 +90,9 @@ const BoardPage = () => {
 
             setTasks((prevTasks) =>
                 prevTasks.map(t =>
-                    t.id === active.id ? { ...t, columnId: over.id as string } : t
+                    t.id === active.id ?
+                        { ...t, columnId: over.id as string } :
+                        t
                 )
             )
 

@@ -1,13 +1,24 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp, updateDoc } from "firebase/firestore"
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDocs,
+    orderBy,
+    query,
+    serverTimestamp,
+    updateDoc
+} from "firebase/firestore"
 import { db } from "../firebase.ts"
 import type { Column } from "../../types/types.ts"
 
 export const addColumn = async (boardId: string, columnName: string) => {
     try {
         const columnsCollectionRef = collection(db, 'boards', boardId, 'columns')
-        const columnSnapshot = await getDocs(columnsCollectionRef)
+        const columnQuery = query(columnsCollectionRef, orderBy('position', 'desc'))
+        const columnSnapshot = await getDocs(columnQuery)
 
-        const newColumnPosition = columnSnapshot.docs.length
+        const newColumnPosition = !columnSnapshot.empty ? columnSnapshot.docs[0].data().position + 1 : 0
 
         await addDoc(columnsCollectionRef, {
             name: columnName,

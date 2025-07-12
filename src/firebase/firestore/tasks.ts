@@ -1,13 +1,24 @@
-import { collection, getDocs, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore"
+import {
+    collection,
+    getDocs,
+    addDoc,
+    serverTimestamp,
+    deleteDoc,
+    doc,
+    updateDoc,
+    query,
+    orderBy
+} from "firebase/firestore"
 import { db } from '../firebase.ts'
 import type { Task } from "../../types/types.ts"
 
 export const addTask = async (boardId: string, columnId: string, taskName: string) => {
     try {
         const taskCollectionRef = collection(db, 'boards', boardId, 'columns', columnId, 'tasks')
-        const tasksSnapshot = await getDocs(taskCollectionRef)
+        const taskQuery = query(taskCollectionRef, orderBy('position', 'desc'))
+        const tasksSnapshot = await getDocs(taskQuery)
 
-        const newTaskPosition = tasksSnapshot.docs.length
+        const newTaskPosition = !tasksSnapshot.empty ? tasksSnapshot.docs[0].data().position + 1 : 0
 
         await addDoc(taskCollectionRef, {
             name: taskName,
