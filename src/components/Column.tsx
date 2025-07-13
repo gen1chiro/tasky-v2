@@ -1,8 +1,8 @@
 import { useDroppable } from "@dnd-kit/core"
-import {useSortable} from "@dnd-kit/sortable"
-import {CSS} from "@dnd-kit/utilities"
-import {deleteColumn, editColumn} from "../firebase/firestore/columns.ts"
-import {addTask} from "../firebase/firestore/tasks.ts"
+import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { deleteColumn, editColumn } from "../firebase/firestore/columns.ts"
+import { addTask } from "../firebase/firestore/tasks.ts"
 import Task from "./Task.tsx"
 import type { Column } from "../types/types.ts"
 
@@ -55,13 +55,16 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {co
                         className='bg-white rounded-md px-2'>add
                 </button>
             </div>
-            <div ref={setDroppableRef} className="w-full bg-white min-h-80">
-                {tasks
-                    .filter((task) => task.columnId === column.id)
-                    .map((task) => (
-                        <Task key={task.id} task={task} boardId={boardId} column={column} taskName={taskName}/>
-                    ))}
-            </div>
+            <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
+                <div ref={setDroppableRef} className="w-full bg-white min-h-80">
+                    {tasks
+                        .filter((task) => task.columnId === column.id)
+                        .map((task) => (
+                            <Task key={task.id} task={task} boardId={boardId} column={column} taskName={taskName}/>
+                        ))}
+                </div>
+            </SortableContext>
+
         </div>
 
     )

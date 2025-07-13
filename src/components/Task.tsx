@@ -1,24 +1,32 @@
-import { useDraggable } from "@dnd-kit/core";
-import { deleteTask, editTask } from "../firebase/firestore/tasks.ts";
+import { useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { deleteTask, editTask } from "../firebase/firestore/tasks.ts"
 
 const Task = ({task, boardId, taskName}) => {
-    const { attributes, listeners, setNodeRef, transform } = useDraggable({
-        id: task.id,
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({
+        id: task.id
     })
 
-    const style = transform
-        ? {
-            transform: `translate(${transform.x}px, ${transform.y}px)`,
-        }
-        : undefined
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    }
 
     return (
-        <div style={style}>
+        <div >
             <div
                 ref={setNodeRef}
+                style={style}
                 {...attributes}
                 {...listeners}
-                className="p-2 rounded-md shadow-md flex flex-col items-center gap-2 bg-slate-200"
+                className={`p-2 rounded-md shadow-md flex flex-col items-center gap-2 bg-slate-200 ${isDragging ? 'opacity-50' : ''}`}
             >
                 <h1>{task.name}</h1>
             </div>

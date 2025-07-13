@@ -1,12 +1,23 @@
 import { useState, useEffect } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
-import {DndContext, type DragEndEvent} from "@dnd-kit/core"
-import { arrayMove, SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable"
+import {
+    DndContext,
+    type DragStartEvent,
+    type DragEndEvent,
+    closestCenter,
+    useSensor,
+    useSensors,
+    PointerSensor,
+    KeyboardSensor,
+    DragOverlay,
+} from "@dnd-kit/core"
+import { arrayMove, SortableContext, horizontalListSortingStrategy, sortableKeyboardCoordinates } from "@dnd-kit/sortable"
 import {addColumn, editColumn} from "../firebase/firestore/columns.ts"
 import { db } from "../firebase/firebase.ts"
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
 import Column from "../components/Column.tsx"
-import { addTask, deleteTask } from "../firebase/firestore/tasks.ts"
+import { addTask, deleteTask, editTask } from "../firebase/firestore/tasks.ts"
+import Task from "../components/Task.tsx"
 
 const BoardPage = () => {
     const loaderData = useLoaderData()
@@ -14,7 +25,15 @@ const BoardPage = () => {
     const [tasks, setTasks] = useState(loaderData.tasks || [])
     const [columnName, setColumnName] = useState<string>('')
     const [taskName, setTaskName] = useState<string>('')
+    const [activeTaskId, setActiveTaskId] = useState<string>('')
     const { boardId } = useParams<{ boardId: string }>()
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     useEffect(() => {
         const columnsCollectionRef = collection(db, 'boards', boardId as string, 'columns')
@@ -62,6 +81,11 @@ const BoardPage = () => {
         }
     }, [boardId, columns])
 
+    const handleDragStart = (event: DragStartEvent) => {
+        const { active } = event
+        setActiveTaskId(active.id as string)
+    }
+
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event
 
@@ -85,19 +109,46 @@ const BoardPage = () => {
                 )
             )
         } else {
-            const task = tasks.find(task => task.id === active.id)
-            if (!task || task.columnId === over.id) return
+            const activeTask = tasks.find(task => task.id === active.id)
+            const overTask = tasks.find(task => task.id === over.id)
 
-            setTasks((prevTasks) =>
-                prevTasks.map(t =>
-                    t.id === active.id ?
-                        { ...t, columnId: over.id as string } :
-                        t
+            const isSameColumn = activeTask.columnId === (overTask?.columnId || over.id)
+
+            if (isSameColumn) {
+                const columnTasks = tasks.filter(task => task.columnId === activeTask.columnId)
+                const oldIndex = columnTasks.findIndex(task => task.id === active.id)
+                const newIndex = columnTasks.findIndex(task => task.id === over.id)
+
+                const newTasksInColumn = arrayMove(columnTasks, oldIndex, newIndex)
+
+                const newTasks = tasks.map(task =>
+                    task.columnId === activeTask.columnId
+                        ? newTasksInColumn.find(t => t.id === task.id) || task
+                        : task
                 )
-            )
 
-            await deleteTask(boardId as string, task.columnId, active.id as string)
-            await addTask(boardId as string, over.id as string, task.name)
+                setTasks(newTasks)
+
+                await Promise.all(
+                    newTasksInColumn.map((task, index) =>
+                        editTask(boardId as string, task.columnId, task.id, index, "position")
+                    )
+                )
+            } else {
+                const task = tasks.find(task => task.id === active.id)
+                if (!task || task.columnId === over.id) return
+
+                setTasks((prevTasks) =>
+                    prevTasks.map(t =>
+                        t.id === active.id ?
+                            { ...t, columnId: over.id as string } :
+                            t
+                    )
+                )
+
+                await deleteTask(boardId as string, task.columnId, active.id as string)
+                await addTask(boardId as string, over.id as string, task.name)
+            }
         }
     }
 
@@ -109,7 +160,7 @@ const BoardPage = () => {
 
     return (
         <div>
-            <DndContext onDragEnd={handleDragEnd}>
+            <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors} collisionDetection={closestCenter}>
                 <h1>Board</h1>
                 <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)}
                        className='border-black border'/>
@@ -119,6 +170,15 @@ const BoardPage = () => {
                         {columnElements}
                     </div>
                 </SortableContext>
+                <DragOverlay>
+                    {activeTaskId ? (
+                        <Task
+                            task={tasks.find(task => task.id === activeTaskId)}
+                            boardId={boardId as string}
+                            taskName={taskName}
+                        />
+                    ) : null}
+                </DragOverlay>
             </DndContext>
         </div>
     )
