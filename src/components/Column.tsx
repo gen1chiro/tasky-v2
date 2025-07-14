@@ -16,7 +16,8 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {co
         listeners,
         setNodeRef,
         transform,
-        transition
+        transition,
+        isDragging
     } = useSortable({
         id: column.id,
         data: {
@@ -33,7 +34,7 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {co
         <div
             style={style}
             ref={setNodeRef}
-            className='flex flex-col items-center justify-center gap-4 w-80 bg-slate-300 p-4'>
+            className={`flex flex-col items-center justify-center gap-4 w-80 bg-slate-300 p-4 ${isDragging ? 'opacity-50' : ''}`}>
             <div
                 {...attributes}
                 {...listeners}
@@ -56,7 +57,7 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {co
                 </button>
             </div>
             <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
-                <div ref={setDroppableRef} className="w-full bg-white min-h-80">
+                <div ref={setDroppableRef} className="w-full bg-white min-h-56">
                     {tasks
                         .filter((task) => task.columnId === column.id)
                         .map((task) => (
@@ -64,7 +65,6 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {co
                         ))}
                 </div>
             </SortableContext>
-
         </div>
 
     )

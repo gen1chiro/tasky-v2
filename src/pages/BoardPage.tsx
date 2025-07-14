@@ -4,6 +4,7 @@ import {
     DndContext,
     type DragStartEvent,
     type DragEndEvent,
+    type DragMoveEvent,
     closestCenter,
     useSensor,
     useSensors,
@@ -26,6 +27,7 @@ const BoardPage = () => {
     const [columnName, setColumnName] = useState<string>('')
     const [taskName, setTaskName] = useState<string>('')
     const [activeTaskId, setActiveTaskId] = useState<string>('')
+    const [activeColumnId, setActiveColumnId] = useState<string>('')
     const { boardId } = useParams<{ boardId: string }>()
 
     const sensors = useSensors(
@@ -83,13 +85,22 @@ const BoardPage = () => {
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event
-        setActiveTaskId(active.id as string)
+        const isColumnDrag = active.data?.current?.type === 'column'
+
+        if (isColumnDrag) {
+            setActiveColumnId(active.id as string)
+        } else {
+            setActiveTaskId(active.id as string)
+        }
     }
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event
 
         if (!over) return
+
+        setActiveTaskId('')
+        setActiveColumnId('')
 
         const isColumnDrag = active.data?.current?.type === 'column'
 
@@ -152,6 +163,31 @@ const BoardPage = () => {
         }
     }
 
+    const handleDragMove = (event: DragMoveEvent) => {
+        const { active, over } = event
+
+        if (!over) return
+
+        const isColumnDrag = active.data?.current?.type === 'column'
+
+        if (!isColumnDrag) {
+            const activeTask = tasks.find(task => task.id === active.id)
+            const overTask = tasks.find(task => task.id === over.id)
+
+            const isSameColumn = activeTask.columnId === (overTask?.columnId || over.id)
+
+            if (!isSameColumn) {
+                setTasks((prevTasks) =>
+                    prevTasks.map(t =>
+                        t.id === active.id ?
+                            { ...t, columnId: over.id as string } :
+                            t
+                    )
+                )
+            }
+        }
+    }
+
     const columnElements = columns.map((column) => {
         return (
             <Column key={column.id} boardId={boardId} column={column} taskName={taskName} columnName={columnName} setTaskName={setTaskName} tasks={tasks}/>
@@ -160,7 +196,7 @@ const BoardPage = () => {
 
     return (
         <div>
-            <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors} collisionDetection={closestCenter}>
+            <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragMove={handleDragMove} sensors={sensors} collisionDetection={closestCenter}>
                 <h1>Board</h1>
                 <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)}
                        className='border-black border'/>
@@ -171,13 +207,22 @@ const BoardPage = () => {
                     </div>
                 </SortableContext>
                 <DragOverlay>
-                    {activeTaskId ? (
-                        <Task
+                    {activeTaskId
+                        ? (<Task
                             task={tasks.find(task => task.id === activeTaskId)}
                             boardId={boardId as string}
                             taskName={taskName}
-                        />
-                    ) : null}
+                        />)
+                        : activeColumnId ?
+                        (<Column
+                            column={columns.find(column => column.id === activeColumnId)}
+                            boardId={boardId as string}
+                            taskName={taskName}
+                            columnName={columnName}
+                            setTaskName={setTaskName}
+                            tasks={tasks}
+                        />) : null
+                    }
                 </DragOverlay>
             </DndContext>
         </div>
