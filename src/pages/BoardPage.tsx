@@ -132,11 +132,9 @@ const BoardPage = () => {
 
                 const newTasksInColumn = arrayMove(columnTasks, oldIndex, newIndex)
 
-                const newTasks = tasks.map(task =>
-                    task.columnId === activeTask.columnId
-                        ? newTasksInColumn.find(t => t.id === task.id) || task
-                        : task
-                )
+                const newTasks = tasks.flatMap(task =>
+                    task.columnId === activeTask.columnId ? [] : [task]
+                ).concat(newTasksInColumn);
 
                 setTasks(newTasks)
 
@@ -163,7 +161,7 @@ const BoardPage = () => {
         }
     }
 
-    const handleDragMove = (event: DragMoveEvent) => {
+    const handleDragOver = (event: DragMoveEvent) => {
         const { active, over } = event
 
         if (!over) return
@@ -196,7 +194,7 @@ const BoardPage = () => {
 
     return (
         <div>
-            <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragMove={handleDragMove} sensors={sensors} collisionDetection={closestCenter}>
+            <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragOver={handleDragOver} sensors={sensors} collisionDetection={closestCenter}>
                 <h1>Board</h1>
                 <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)}
                        className='border-black border'/>

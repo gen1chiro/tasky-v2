@@ -57,7 +57,7 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {co
                 </button>
             </div>
             <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
-                <div ref={setDroppableRef} className="w-full bg-white min-h-56">
+                <div className="w-full bg-white min-h-56">
                     {tasks
                         .filter((task) => task.columnId === column.id)
                         .map((task) => (
