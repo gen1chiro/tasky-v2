@@ -133,17 +133,26 @@ const BoardPage = () => {
         const overIndex = overContainer.tasks.findIndex((task) => task.id === overId)
 
         if (activeIndex !== overIndex) {
-            setColumns((prev) =>
-                prev.map((container) => {
-                    if (container.id === overContainer.id) {
-                        return {
-                            ...container,
-                            tasks: arrayMove(container.tasks, activeIndex, overIndex)
-                        };
+            const newColumnTasks = columns.map(column =>
+                column.id === activeContainer.id
+                    ? {
+                        ...column,
+                        tasks: arrayMove(column.tasks, activeIndex, overIndex)
                     }
-                    return container;
-                })
-            );
+                    : column
+            )
+
+            setColumns(newColumnTasks);
+
+            await Promise.all(
+                newColumnTasks.map(columnTask =>
+                    columnTask.tasks.map((task, index) =>
+                        task.columnId === activeContainer.id
+                            ? editTask(boardId as string, activeContainer.id, task.id, index, "position")
+                            : null
+                    )
+                )
+            )
         }
 
         setActiveTaskId(null);
@@ -175,8 +184,8 @@ const BoardPage = () => {
             setColumns(newColumns);
 
             await Promise.all(
-                newColumns.map((col, index) =>
-                    editColumn(boardId as string, col.id, index, "position")
+                newColumns.map((column, index) =>
+                    editColumn(boardId as string, column.id, index, "position")
                 )
             )
 
