@@ -102,24 +102,24 @@ export const boardLoader = async ({params}: { params: { boardId: string } }) => 
     const columnRef = collection(db, 'boards', boardId, 'columns')
     const columnQuery = query(columnRef, orderBy('position', 'asc'))
     const columnSnapshot = await getDocs(columnQuery)
-    const columns = columnSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-    }))
 
-    const tasks = (await Promise.all(
-        columnSnapshot.docs.map(async (doc) => {
-            const tasksRef = collection(db, 'boards', boardId, 'columns', doc.id, 'tasks')
+    const board = await Promise.all(
+        columnSnapshot.docs.map(async (columnDoc) => {
+            const tasksRef = collection(db, 'boards', boardId, 'columns', columnDoc.id, 'tasks')
             const taskQuery = query(tasksRef, orderBy('position', 'asc'))
             const taskSnapshot = await getDocs(taskQuery)
 
-            return taskSnapshot.docs.map((taskDoc) => ({
+            return {
+                id: columnDoc.id,
+                ...columnDoc.data(),
+                tasks: taskSnapshot.docs.map(taskDoc => ({
                     id: taskDoc.id,
+                    columnId: columnDoc.id,
                     ...taskDoc.data()
-                })
-            )
+                }))
+            }
         })
-    )).flat()
+    )
 
-    return {columns, tasks}
+    return { board }
 }

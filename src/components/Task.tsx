@@ -40,3 +40,11 @@ const Task = ({task, boardId, taskName}) => {
 }
 
 export default Task
+
+export const TaskPreview = () => {
+    return (
+        <div className="p-2 rounded-md shadow-md flex flex-col items-center gap-2 bg-slate-200">
+            <h1>Task Preview</h1>
+        </div>
+    )
+}

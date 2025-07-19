@@ -15,15 +15,14 @@ import {
 import { arrayMove, SortableContext, horizontalListSortingStrategy, sortableKeyboardCoordinates } from "@dnd-kit/sortable"
 import {addColumn, editColumn} from "../firebase/firestore/columns.ts"
 import { db } from "../firebase/firebase.ts"
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
-import Column from "../components/Column.tsx"
+import {collection, onSnapshot, query, orderBy, getDocs} from "firebase/firestore"
+import Column, {ColumnPreview} from "../components/Column.tsx"
 import { addTask, deleteTask, editTask } from "../firebase/firestore/tasks.ts"
-import Task from "../components/Task.tsx"
+import {TaskPreview} from "../components/Task.tsx"
 
 const BoardPage = () => {
-    const loaderData = useLoaderData()
-    const [columns, setColumns] = useState(loaderData.columns || [])
-    const [tasks, setTasks] = useState(loaderData.tasks || [])
+    const { board: initialBoard } = useLoaderData()
+    const [columns, setColumns] = useState(initialBoard || [])
     const [columnName, setColumnName] = useState<string>('')
     const [taskName, setTaskName] = useState<string>('')
     const [activeTaskId, setActiveTaskId] = useState<string>('')
@@ -42,10 +41,23 @@ const BoardPage = () => {
         const columnsQuery = query(columnsCollectionRef, orderBy('position', 'asc'))
 
         const unsubscribeColumns = onSnapshot(columnsQuery, async (snapshot) => {
-            const updatedColumns = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data()
-            }))
+            const columnPromises = snapshot.docs.map(async (doc) => {
+                const tasksRef = collection(db, 'boards', boardId as string, 'columns', doc.id, 'tasks')
+                const tasksQuery = query(tasksRef, orderBy('position', 'asc'))
+                const taskSnapshot = await getDocs(tasksQuery)
+
+                return {
+                    id: doc.id,
+                    ...doc.data(),
+                    tasks: taskSnapshot.docs.map(taskDoc => ({
+                        id: taskDoc.id,
+                        columnId: doc.id,
+                        ...taskDoc.data()
+                    }))
+                }
+            })
+
+            const updatedColumns = await Promise.all(columnPromises)
             setColumns(updatedColumns)
         })
 
@@ -55,32 +67,28 @@ const BoardPage = () => {
     useEffect(() => {
         if (!columns.length) return
 
-        const taskUnsubscribers = new Map()
-
-        columns.forEach(column => {
+        const unsubscribers = columns.map(column => {
             const tasksRef = collection(db, 'boards', boardId as string, 'columns', column.id, 'tasks')
             const tasksQuery = query(tasksRef, orderBy('position', 'asc'))
 
-            const unsubscribe = onSnapshot(tasksQuery, async (snapshot) => {
-                const columnTasks = snapshot.docs.map(doc => ({
+            return onSnapshot(tasksQuery, (snapshot) => {
+                const updatedTasks = snapshot.docs.map(doc => ({
                     id: doc.id,
                     columnId: column.id,
                     ...doc.data()
                 }))
 
-                setTasks(prevTasks => {
-                    const otherTasks = prevTasks.filter(task => task.columnId !== column.id)
-                    return [...otherTasks, ...columnTasks]
-                })
+                setColumns(prevColumns =>
+                    prevColumns.map(col =>
+                        col.id === column.id
+                            ? { ...col, tasks: updatedTasks }
+                            : col
+                    )
+                )
             })
-
-            console.log(columns, tasks)
-            taskUnsubscribers.set(column.id, unsubscribe)
         })
 
-        return () => {
-            taskUnsubscribers.forEach(unsubscribe => unsubscribe())
-        }
+        return () => unsubscribers.forEach(unsubscribe => unsubscribe())
     }, [boardId, columns])
 
     const handleDragStart = (event: DragStartEvent) => {
@@ -95,100 +103,16 @@ const BoardPage = () => {
     }
 
     const handleDragEnd = async (event: DragEndEvent) => {
-        const { active, over } = event
 
-        if (!over) return
-
-        setActiveTaskId('')
-        setActiveColumnId('')
-
-        const isColumnDrag = active.data?.current?.type === 'column'
-
-        if (isColumnDrag) {
-            const { active, over } = event
-            if (!over || active.id === over.id) return
-
-            const oldIndex = columns.findIndex(col => col.id === active.id)
-            const newIndex = columns.findIndex(col => col.id === over.id)
-
-            const newColumns = arrayMove(columns, oldIndex, newIndex)
-            setColumns(newColumns)
-
-            await Promise.all(
-                newColumns.map((col, index) =>
-                    editColumn(boardId as string, col.id, index, "position")
-                )
-            )
-        } else {
-            const activeTask = tasks.find(task => task.id === active.id)
-            const overTask = tasks.find(task => task.id === over.id)
-
-            const isSameColumn = activeTask.columnId === (overTask?.columnId || over.id)
-
-            if (isSameColumn) {
-                const columnTasks = tasks.filter(task => task.columnId === activeTask.columnId)
-                const oldIndex = columnTasks.findIndex(task => task.id === active.id)
-                const newIndex = columnTasks.findIndex(task => task.id === over.id)
-
-                const newTasksInColumn = arrayMove(columnTasks, oldIndex, newIndex)
-
-                const newTasks = tasks.flatMap(task =>
-                    task.columnId === activeTask.columnId ? [] : [task]
-                ).concat(newTasksInColumn);
-
-                setTasks(newTasks)
-
-                await Promise.all(
-                    newTasksInColumn.map((task, index) =>
-                        editTask(boardId as string, task.columnId, task.id, index, "position")
-                    )
-                )
-            } else {
-                const task = tasks.find(task => task.id === active.id)
-                if (!task || task.columnId === over.id) return
-
-                setTasks((prevTasks) =>
-                    prevTasks.map(t =>
-                        t.id === active.id ?
-                            { ...t, columnId: over.id as string } :
-                            t
-                    )
-                )
-
-                await deleteTask(boardId as string, task.columnId, active.id as string)
-                await addTask(boardId as string, over.id as string, task.name)
-            }
-        }
     }
 
     const handleDragOver = (event: DragMoveEvent) => {
-        const { active, over } = event
 
-        if (!over) return
-
-        const isColumnDrag = active.data?.current?.type === 'column'
-
-        if (!isColumnDrag) {
-            const activeTask = tasks.find(task => task.id === active.id)
-            const overTask = tasks.find(task => task.id === over.id)
-
-            const isSameColumn = activeTask.columnId === (overTask?.columnId || over.id)
-
-            if (!isSameColumn) {
-                setTasks((prevTasks) =>
-                    prevTasks.map(t =>
-                        t.id === active.id ?
-                            { ...t, columnId: over.id as string } :
-                            t
-                    )
-                )
-            }
-        }
     }
 
     const columnElements = columns.map((column) => {
         return (
-            <Column key={column.id} boardId={boardId} column={column} taskName={taskName} columnName={columnName} setTaskName={setTaskName} tasks={tasks}/>
+            <Column key={column.id} boardId={boardId} column={column} taskName={taskName} columnName={columnName} setTaskName={setTaskName} tasks={column.tasks}/>
         )
     })
 
@@ -206,20 +130,10 @@ const BoardPage = () => {
                 </SortableContext>
                 <DragOverlay>
                     {activeTaskId
-                        ? (<Task
-                            task={tasks.find(task => task.id === activeTaskId)}
-                            boardId={boardId as string}
-                            taskName={taskName}
-                        />)
-                        : activeColumnId ?
-                        (<Column
-                            column={columns.find(column => column.id === activeColumnId)}
-                            boardId={boardId as string}
-                            taskName={taskName}
-                            columnName={columnName}
-                            setTaskName={setTaskName}
-                            tasks={tasks}
-                        />) : null
+                        ? <TaskPreview/>
+                        : activeColumnId
+                            ? <ColumnPreview/>
+                            : null
                     }
                 </DragOverlay>
             </DndContext>
