@@ -19,10 +19,7 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {co
         transition,
         isDragging
     } = useSortable({
-        id: column.id,
-        data: {
-            type: 'column'
-        }
+        id: column.id
     })
 
     const style = {
@@ -56,13 +53,11 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {co
                         className='bg-white rounded-md px-2'>add
                 </button>
             </div>
-            <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
-                <div  className="w-full bg-white min-h-56">
-                    {tasks
-                        .filter((task) => task.columnId === column.id)
-                        .map((task) => (
+            <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
+                <div ref={setDroppableRef} className="w-full bg-white min-h-56">
+                    {tasks.map((task) => (
                             <Task key={task.id} task={task} boardId={boardId} column={column} taskName={taskName}/>
-                        ))}
+                    ))}
                 </div>
             </SortableContext>
         </div>

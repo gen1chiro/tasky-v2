@@ -4,7 +4,7 @@ import {
     DndContext,
     type DragStartEvent,
     type DragEndEvent,
-    type DragMoveEvent,
+    type DragOverEvent,
     closestCenter,
     useSensor,
     useSensors,
@@ -19,6 +19,7 @@ import {collection, onSnapshot, query, orderBy, getDocs} from "firebase/firestor
 import Column, {ColumnPreview} from "../components/Column.tsx"
 import { addTask, deleteTask, editTask } from "../firebase/firestore/tasks.ts"
 import {TaskPreview} from "../components/Task.tsx"
+import column from "../components/Column.tsx";
 
 const BoardPage = () => {
     const { board: initialBoard } = useLoaderData()
@@ -89,25 +90,142 @@ const BoardPage = () => {
         })
 
         return () => unsubscribers.forEach(unsubscribe => unsubscribe())
-    }, [boardId, columns])
+    }, [boardId])
+
+    const findColumn = (id) => {
+        const container = columns.find(column => column.id === id)
+        if (container) return container
+
+        return columns.find((column) =>
+            column.tasks.some((item) => item.id === id)
+        )
+    }
+
+    const isColumn = (id) => {
+        return columns.some(column => column.id === id)
+    }
 
     const handleDragStart = (event: DragStartEvent) => {
-        const { active } = event
-        const isColumnDrag = active.data?.current?.type === 'column'
+        const { active } = event;
+        const { id } = active;
 
-        if (isColumnDrag) {
-            setActiveColumnId(active.id as string)
+        if (isColumn(id)) {
+            setActiveColumnId(id as string)
         } else {
-            setActiveTaskId(active.id as string)
+            setActiveTaskId(id as string);
         }
     }
 
     const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+        const { id } = active;
+        const overId = over ? over.id : null;
 
+        const activeContainer = findColumn(id);
+        const overContainer = findColumn(overId);
+
+        if (!activeContainer || !overContainer || activeContainer.id !== overContainer.id) {
+            return;
+        }
+
+        const activeIndex = activeContainer.tasks.findIndex((task) => task.id === id);
+        const overIndex = overContainer.tasks.findIndex((task) => task.id === overId)
+
+        if (activeIndex !== overIndex) {
+            setColumns((prev) =>
+                prev.map((container) => {
+                    if (container.id === overContainer.id) {
+                        return {
+                            ...container,
+                            tasks: arrayMove(container.tasks, activeIndex, overIndex)
+                        };
+                    }
+                    return container;
+                })
+            );
+        }
+
+        setActiveTaskId(null);
+        setActiveColumnId(null);
     }
 
-    const handleDragOver = (event: DragMoveEvent) => {
+    const handleDragOver = (event) => {
+        const { active, over } = event;
+        const { id } = active;
+        const overId = over ? over.id : null;
 
+        // Handle container reordering
+        if (isColumn(id)) {
+            if (!over) return;
+
+            let targetContainerId = overId;
+
+            // If hovering over an item, find its parent container
+            if (!isColumn(overId)) {
+                const overContainer = findColumn(overId);
+                if (!overContainer) return;
+                targetContainerId = overContainer.id;
+            }
+
+            setColumns(prev => {
+                const activeIndex = prev.findIndex(container => container.id === id);
+                const overIndex = prev.findIndex(container => container.id === targetContainerId);
+
+                return arrayMove(prev, activeIndex, overIndex);
+            });
+            return;
+        }
+
+        const activeContainer = findColumn(id);
+        const overContainer = findColumn(overId);
+
+        if (!activeContainer || !overContainer || activeContainer.id === overContainer.id) {
+            return;
+        }
+
+        setColumns((prev) => {
+            const activeItems = activeContainer.tasks;
+            const overItems = overContainer.tasks;
+
+            const activeIndex = activeItems.findIndex((task) => task.id === id);
+            const overIndex = overItems.findIndex((task) => task.id === overId);
+
+            let newIndex;
+            if (overId) {
+                const isBelowLastItem =
+                    over &&
+                    overIndex === overItems.length - 1 &&
+                    active.rect.offsetTop > over.rect.offsetTop + over.rect.height;
+
+                const modifier = isBelowLastItem ? 1 : 0;
+
+                newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
+            } else {
+                newIndex = overItems.length + 1;
+            }
+
+            const movedItem = activeItems[activeIndex];
+
+            return prev.map((container) => {
+                if (container.id === activeContainer.id) {
+                    return {
+                        ...container,
+                        tasks: activeItems.filter(item => item.id !== id)
+                    };
+                }
+                if (container.id === overContainer.id) {
+                    return {
+                        ...container,
+                        tasks: [
+                            ...overItems.slice(0, newIndex),
+                            movedItem,
+                            ...overItems.slice(newIndex)
+                        ]
+                    };
+                }
+                return container;
+            });
+        });
     }
 
     const columnElements = columns.map((column) => {
