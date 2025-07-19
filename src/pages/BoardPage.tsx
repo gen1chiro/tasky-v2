@@ -117,6 +117,7 @@ const BoardPage = () => {
     }
 
     const handleDragEnd = async (event: DragEndEvent) => {
+        //In column task DND
         const { active, over } = event;
         const { id } = active;
         const overId = over ? over.id : null;
@@ -149,7 +150,7 @@ const BoardPage = () => {
         setActiveColumnId(null);
     }
 
-    const handleDragOver = (event) => {
+    const handleDragOver = async (event) => {
         const { active, over } = event;
         const { id } = active;
         const overId = over ? over.id : null;
@@ -167,15 +168,21 @@ const BoardPage = () => {
                 targetContainerId = overContainer.id;
             }
 
-            setColumns(prev => {
-                const activeIndex = prev.findIndex(container => container.id === id);
-                const overIndex = prev.findIndex(container => container.id === targetContainerId);
+            const activeIndex = columns.findIndex(container => container.id === id);
+            const overIndex = columns.findIndex(container => container.id === targetContainerId);
 
-                return arrayMove(prev, activeIndex, overIndex);
-            });
+            const newColumns = arrayMove(columns, activeIndex, overIndex);
+            setColumns(newColumns);
+
+            await Promise.all(
+                newColumns.map((col, index) =>
+                    editColumn(boardId as string, col.id, index, "position")
+                )
+            )
+
             return;
         }
-
+        // Cross column task DND
         const activeContainer = findColumn(id);
         const overContainer = findColumn(overId);
 
