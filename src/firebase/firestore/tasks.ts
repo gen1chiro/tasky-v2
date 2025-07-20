@@ -7,7 +7,7 @@ import {
     doc,
     updateDoc,
     query,
-    orderBy
+    orderBy, setDoc
 } from "firebase/firestore"
 import { db } from '../firebase.ts'
 import type { Task } from "../../types/types.ts"
@@ -32,10 +32,10 @@ export const addTask = async (boardId: string, columnId: string, taskName: strin
     }
 }
 
-export const addTaskAtPosition = async (boardId: string, columnId: string, taskName: string, position: number) => {
+export const addTaskAtPosition = async (boardId: string, columnId: string, taskId: string, taskName: string, position: number) => {
     try {
-        const taskCollectionRef = collection(db, 'boards', boardId, 'columns', columnId, 'tasks')
-        await addDoc(taskCollectionRef, {
+        const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', taskId)
+        await setDoc(taskDocRef, {
             name: taskName,
             columnId: columnId,
             position: position,

@@ -1,5 +1,5 @@
 import {useState, useEffect, useRef} from "react"
-import { useLoaderData, useParams } from "react-router-dom"
+import {useLoaderData, useParams} from "react-router-dom"
 import {
     DndContext,
     type DragStartEvent,
@@ -11,24 +11,24 @@ import {
     KeyboardSensor,
     DragOverlay,
 } from "@dnd-kit/core"
-import { arrayMove, SortableContext, horizontalListSortingStrategy, sortableKeyboardCoordinates } from "@dnd-kit/sortable"
+import {arrayMove, SortableContext, horizontalListSortingStrategy, sortableKeyboardCoordinates} from "@dnd-kit/sortable"
 import {addColumn, editColumn} from "../firebase/firestore/columns.ts"
-import { db } from "../firebase/firebase.ts"
-import { collection, onSnapshot, query, orderBy, getDocs } from "firebase/firestore"
-import Column, { ColumnPreview } from "../components/Column.tsx"
-import { addTaskAtPosition, deleteTask, editTask } from "../firebase/firestore/tasks.ts"
-import { TaskPreview } from "../components/Task.tsx"
+import {db} from "../firebase/firebase.ts"
+import {collection, onSnapshot, query, orderBy, getDocs} from "firebase/firestore"
+import Column, {ColumnPreview} from "../components/Column.tsx"
+import {addTaskAtPosition, deleteTask, editTask} from "../firebase/firestore/tasks.ts"
+import {TaskPreview} from "../components/Task.tsx"
 
 const BoardPage = () => {
-    const { board: initialBoard } = useLoaderData()
+    const {board: initialBoard} = useLoaderData()
     const [columns, setColumns] = useState(initialBoard || [])
     const [columnName, setColumnName] = useState<string>('')
     const [taskName, setTaskName] = useState<string>('')
     const [activeTaskId, setActiveTaskId] = useState<string>('')
     const [activeColumnId, setActiveColumnId] = useState<string>('')
     const lastColumnId = useRef<string | null>(null)
-    const latestColumns = useRef(columns)
-    const { boardId } = useParams<{ boardId: string }>()
+    const latestIndex = useRef<number | null>(null)
+    const {boardId} = useParams<{ boardId: string }>()
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -82,7 +82,7 @@ const BoardPage = () => {
                 setColumns(prevColumns =>
                     prevColumns.map(col =>
                         col.id === column.id
-                            ? { ...col, tasks: updatedTasks }
+                            ? {...col, tasks: updatedTasks}
                             : col
                     )
                 )
@@ -106,8 +106,8 @@ const BoardPage = () => {
     }
 
     const handleDragStart = (event: DragStartEvent) => {
-        const { active } = event
-        const { id } = active
+        const {active} = event
+        const {id} = active
 
         if (isColumn(id)) {
             setActiveColumnId(id as string)
@@ -119,72 +119,61 @@ const BoardPage = () => {
 
     const handleDragEnd = async (event: DragEndEvent) => {
         //In column task DND
-        const { active, over } = event
-        const { id } = active
+        const {active, over} = event
+        const {id} = active
         const overId = over ? over.id : null
 
         const activeContainer = findColumn(id)
         const overContainer = findColumn(overId)
+        //const previousContainer = findColumn(lastColumnId.current)
 
         if (!activeContainer || !overContainer || isColumn(id)) {
             return
         }
 
+        const activeIndex = activeContainer.tasks.findIndex((task) => task.id === id)
+        const overIndex = overContainer.tasks.findIndex((task) => task.id === overId)
+
+        const newColumnTasks = columns.map(column =>
+            column.id === activeContainer.id
+                ? {
+                    ...column,
+                    tasks: arrayMove(column.tasks, activeIndex, overIndex)
+                }
+                : column
+        )
+
+        setColumns(newColumnTasks)
+
         const isSameContainer = lastColumnId.current === overContainer.id
 
         if (isSameContainer) {
-            console.log('Same container DND')
-            const activeIndex = activeContainer.tasks.findIndex((task) => task.id === id)
-            const overIndex = overContainer.tasks.findIndex((task) => task.id === overId)
-
-            if (activeIndex !== overIndex) {
-                const newColumnTasks = columns.map(column =>
-                    column.id === activeContainer.id
-                        ? {
-                            ...column,
-                            tasks: arrayMove(column.tasks, activeIndex, overIndex)
-                        }
-                        : column
-                )
-
-                setColumns(newColumnTasks)
-
-                await Promise.all(
-                    newColumnTasks.map(columnTask =>
-                        columnTask.tasks.map((task, index) =>
-                            task.columnId === activeContainer.id
-                                ? editTask(boardId as string, activeContainer.id, task.id, index, "position")
-                                : null
-                        )
-                    )
-                )
-            }
-        } else {
-            if (!activeContainer || !overContainer) return
-            console.log('Cross column task DND')
-            /*
-            if (!activeContainer || !overContainer) return
-
-            const movedItem = activeContainer.tasks.find(task => task.id === id)
-            const overTasks = overContainer.tasks
-
-            const newIndex = overTasks.findIndex(task => task.id === overId)
-            const finalIndex = newIndex === -1 ? overTasks.length : newIndex
-
-            await deleteTask(boardId as string, activeContainer.id, movedItem.id)
-            await addTaskAtPosition(boardId as string, overContainer.id, movedItem.name, finalIndex)
-
-            const newColumns = latestColumns.current
+            if (activeIndex === overIndex) return
 
             await Promise.all(
-                newColumns.map(column =>
-                    column.id === overContainer.id
-                        ? column.tasks.map((task, index) =>
-                            editTask(boardId as string, column.id, task.id, index, "position")
-                        ) : null
+                newColumnTasks.map(columnTask =>
+                    columnTask.tasks.map((task, index) =>
+                        task.columnId === activeContainer.id
+                            ? editTask(boardId as string, activeContainer.id, task.id, index, "position")
+                            : null
+                    )
                 )
             )
-             */
+        } else {
+            const movedItem = overContainer.tasks.find(task => task.id === id)
+
+            await deleteTask(boardId as string, lastColumnId.current as string, movedItem.id)
+            await addTaskAtPosition(boardId as string, overContainer.id, movedItem.id, movedItem.name, latestIndex.current as number)
+
+            await Promise.all(
+                newColumnTasks.map(columnTask =>
+                    columnTask.tasks.map((task, index) =>
+                        task.columnId === activeContainer.id
+                            ? editTask(boardId as string, activeContainer.id, task.id, index, "position")
+                            : null
+                    )
+                )
+            )
         }
 
         setActiveTaskId(null)
@@ -192,8 +181,8 @@ const BoardPage = () => {
     }
 
     const handleDragOver = async (event) => {
-        const { active, over } = event
-        const { id } = active
+        const {active, over} = event
+        const {id} = active
         const overId = over ? over.id : null
 
         // Handle container reordering
@@ -277,18 +266,20 @@ const BoardPage = () => {
         })
 
         setColumns(newColumns)
-        latestColumns.current = newColumns
+        latestIndex.current = newIndex
     }
 
     const columnElements = columns.map((column) => {
         return (
-            <Column key={column.id} boardId={boardId} column={column} taskName={taskName} columnName={columnName} setTaskName={setTaskName} tasks={column.tasks}/>
+            <Column key={column.id} boardId={boardId} column={column} taskName={taskName} columnName={columnName}
+                    setTaskName={setTaskName} tasks={column.tasks}/>
         )
     })
 
     return (
         <div>
-            <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragOver={handleDragOver} sensors={sensors} collisionDetection={closestCenter}>
+            <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragOver={handleDragOver}
+                        sensors={sensors} collisionDetection={closestCenter}>
                 <h1>Board</h1>
                 <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)}
                        className='border-black border'/>
