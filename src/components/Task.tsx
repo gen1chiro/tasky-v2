@@ -11,7 +11,10 @@ const Task = ({task, boardId, taskName}) => {
         transition,
         isDragging
     } = useSortable({
-        id: task.id
+        id: task.id,
+        data: {
+            columnId: task.columnId,
+        }
     })
 
     const style = {

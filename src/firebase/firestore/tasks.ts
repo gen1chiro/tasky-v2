@@ -32,6 +32,21 @@ export const addTask = async (boardId: string, columnId: string, taskName: strin
     }
 }
 
+export const addTaskAtPosition = async (boardId: string, columnId: string, taskName: string, position: number) => {
+    try {
+        const taskCollectionRef = collection(db, 'boards', boardId, 'columns', columnId, 'tasks')
+        await addDoc(taskCollectionRef, {
+            name: taskName,
+            columnId: columnId,
+            position: position,
+            createdAt: serverTimestamp(),
+        })
+    } catch (err) {
+        console.error('Error adding task at position:', err)
+        throw new Error('Failed to add task at position')
+    }
+}
+
 export const editTask = async (boardId: string, columnId: string, taskId: string, newValue, key: keyof Task) => {
     try {
         const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', taskId)

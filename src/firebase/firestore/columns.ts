@@ -47,7 +47,6 @@ export const editColumn = async (boardId: string, columnId: string, newValue, ke
         await updateDoc<Column>(columnDocRef, {
             [key]: newValue
         })
-        console.log('done')
     } catch (err) {
         console.error('Error renaming column:', err)
         throw new Error('Failed to rename column')
