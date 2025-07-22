@@ -24,8 +24,8 @@ const BoardPage = () => {
     const [columns, setColumns] = useState(initialBoard || [])
     const [columnName, setColumnName] = useState<string>('')
     const [taskName, setTaskName] = useState<string>('')
-    const [activeTaskId, setActiveTaskId] = useState<string>('')
-    const [activeColumnId, setActiveColumnId] = useState<string>('')
+    const [activeTask, setActiveTask] = useState<string>(null)
+    const [activeColumn, setActiveColumn] = useState(null)
     const lastColumnId = useRef<string | null>(null)
     const {boardId} = useParams<{ boardId: string }>()
 
@@ -109,10 +109,13 @@ const BoardPage = () => {
         const {id} = active
 
         if (isColumn(id)) {
-            setActiveColumnId(id as string)
+            const column = findColumn(id)
+            setActiveColumn(column)
         } else {
-            setActiveTaskId(id as string)
             lastColumnId.current = active.data.current?.columnId as string
+            const column = findColumn(lastColumnId.current)
+            const task = column?.tasks.find(task => task.id === id)
+            setActiveTask(task)
         }
     }
 
@@ -174,8 +177,8 @@ const BoardPage = () => {
             await addTaskAtPosition(boardId as string, overContainer.id, movedItem.id, movedItem.name, overIndex)
         }
 
-        setActiveTaskId(null)
-        setActiveColumnId(null)
+        setActiveTask(null)
+        setActiveColumn(null)
     }
 
     const handleDragOver = async (event) => {
@@ -287,10 +290,10 @@ const BoardPage = () => {
                     </div>
                 </SortableContext>
                 <DragOverlay>
-                    {activeTaskId
-                        ? <TaskPreview/>
-                        : activeColumnId
-                            ? <ColumnPreview/>
+                    {activeTask
+                        ? <TaskPreview task={activeTask}/>
+                        : activeColumn
+                            ? <ColumnPreview column={activeColumn}/>
                             : null
                     }
                 </DragOverlay>

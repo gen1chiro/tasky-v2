@@ -3,7 +3,7 @@ import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities"
 import { deleteColumn, editColumn } from "../firebase/firestore/columns.ts"
 import { addTask } from "../firebase/firestore/tasks.ts"
-import Task from "./Task.tsx"
+import Task, {TaskPreview} from "./Task.tsx"
 import type { Column } from "../types/types.ts"
 
 const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {column: Column}) => {
@@ -67,10 +67,15 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: {co
 
 export default Column
 
-export const ColumnPreview = () => {
+export const ColumnPreview = ({column}) => {
     return (
         <div className="p-2 rounded-md shadow-md flex flex-col items-center gap-2 bg-slate-200">
-            <h1>Column Preview</h1>
+            <h1>{column.name}</h1>
+            <div className="w-full bg-white min-h-56 flex flex-col gap-4">
+                {column.tasks.map(task =>
+                    <TaskPreview key={task.id} task={task}/>
+                )}
+            </div>
         </div>
     )
 }
