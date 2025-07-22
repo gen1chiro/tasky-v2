@@ -27,7 +27,6 @@ const BoardPage = () => {
     const [activeTaskId, setActiveTaskId] = useState<string>('')
     const [activeColumnId, setActiveColumnId] = useState<string>('')
     const lastColumnId = useRef<string | null>(null)
-    const latestIndex = useRef<number | null>(null)
     const {boardId} = useParams<{ boardId: string }>()
 
     const sensors = useSensors(
@@ -163,17 +162,16 @@ const BoardPage = () => {
             const movedItem = overContainer.tasks.find(task => task.id === id)
 
             await deleteTask(boardId as string, lastColumnId.current as string, movedItem.id)
-            await addTaskAtPosition(boardId as string, overContainer.id, movedItem.id, movedItem.name, latestIndex.current as number)
-
             await Promise.all(
                 newColumnTasks.map(columnTask =>
                     columnTask.tasks.map((task, index) =>
-                        task.columnId === activeContainer.id
+                        task.columnId === activeContainer.id && task.id !== movedItem.id
                             ? editTask(boardId as string, activeContainer.id, task.id, index, "position")
                             : null
                     )
                 )
             )
+            await addTaskAtPosition(boardId as string, overContainer.id, movedItem.id, movedItem.name, overIndex)
         }
 
         setActiveTaskId(null)
@@ -266,7 +264,6 @@ const BoardPage = () => {
         })
 
         setColumns(newColumns)
-        latestIndex.current = newIndex
     }
 
     const columnElements = columns.map((column) => {
