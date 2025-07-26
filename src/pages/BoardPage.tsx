@@ -2,8 +2,6 @@ import {useState, useEffect, useRef} from "react"
 import {useLoaderData, useParams} from "react-router-dom"
 import {
     DndContext,
-    type DragStartEvent,
-    type DragEndEvent,
     closestCenter,
     useSensor,
     useSensors,
@@ -11,12 +9,12 @@ import {
     KeyboardSensor,
     DragOverlay,
 } from "@dnd-kit/core"
-import {arrayMove, SortableContext, horizontalListSortingStrategy, sortableKeyboardCoordinates} from "@dnd-kit/sortable"
-import {addColumn, editColumn} from "../firebase/firestore/columns.ts"
+import {SortableContext, horizontalListSortingStrategy, sortableKeyboardCoordinates} from "@dnd-kit/sortable"
+import {addColumn} from "../firebase/firestore/columns.ts"
+import {handleDragStart, handleDragEnd, handleDragOver} from "../utils/dnd/dndUtils.ts"
 import {db} from "../firebase/firebase.ts"
 import {collection, onSnapshot, query, orderBy, getDocs} from "firebase/firestore"
 import Column, {ColumnPreview} from "../components/Column.tsx"
-import {addTaskAtPosition, deleteTask, editTask} from "../firebase/firestore/tasks.ts"
 import {TaskPreview} from "../components/Task.tsx"
 
 const BoardPage = () => {
@@ -91,184 +89,6 @@ const BoardPage = () => {
         return () => unsubscribers.forEach(unsubscribe => unsubscribe())
     }, [boardId])
 
-    const findColumn = (id) => {
-        const container = columns.find(column => column.id === id)
-        if (container) return container
-
-        return columns.find((column) =>
-            column.tasks.some((item) => item.id === id)
-        )
-    }
-
-    const isColumn = (id) => {
-        return columns.some(column => column.id === id)
-    }
-
-    const handleDragStart = (event: DragStartEvent) => {
-        const {active} = event
-        const {id} = active
-
-        if (isColumn(id)) {
-            const column = findColumn(id)
-            setActiveColumn(column)
-        } else {
-            lastColumnId.current = active.data.current?.columnId as string
-            const column = findColumn(lastColumnId.current)
-            const task = column?.tasks.find(task => task.id === id)
-            setActiveTask(task)
-        }
-    }
-
-    const handleDragEnd = async (event: DragEndEvent) => {
-        //In column task DND
-        const {active, over} = event
-        const {id} = active
-        const overId = over ? over.id : null
-
-        const activeContainer = findColumn(id)
-        const overContainer = findColumn(overId)
-        //const previousContainer = findColumn(lastColumnId.current)
-
-        if (!activeContainer || !overContainer || isColumn(id)) {
-            return
-        }
-
-        const activeIndex = activeContainer.tasks.findIndex((task) => task.id === id)
-        const overIndex = overContainer.tasks.findIndex((task) => task.id === overId)
-
-        const newColumnTasks = columns.map(column =>
-            column.id === activeContainer.id
-                ? {
-                    ...column,
-                    tasks: arrayMove(column.tasks, activeIndex, overIndex)
-                }
-                : column
-        )
-
-        setColumns(newColumnTasks)
-
-        const isSameContainer = lastColumnId.current === overContainer.id
-
-        if (isSameContainer) {
-            if (activeIndex === overIndex) return
-
-            await Promise.all(
-                newColumnTasks.map(columnTask =>
-                    columnTask.tasks.map((task, index) =>
-                        task.columnId === activeContainer.id
-                            ? editTask(boardId as string, activeContainer.id, task.id, index, "position")
-                            : null
-                    )
-                )
-            )
-        } else {
-            const movedItem = overContainer.tasks.find(task => task.id === id)
-
-            await deleteTask(boardId as string, lastColumnId.current as string, movedItem.id)
-            await Promise.all(
-                newColumnTasks.map(columnTask =>
-                    columnTask.tasks.map((task, index) =>
-                        task.columnId === activeContainer.id && task.id !== movedItem.id
-                            ? editTask(boardId as string, activeContainer.id, task.id, index, "position")
-                            : null
-                    )
-                )
-            )
-            await addTaskAtPosition(boardId as string, overContainer.id, movedItem.id, movedItem.name, overIndex)
-        }
-
-        setActiveTask(null)
-        setActiveColumn(null)
-    }
-
-    const handleDragOver = async (event) => {
-        const {active, over} = event
-        const {id} = active
-        const overId = over ? over.id : null
-
-        // Handle container reordering
-        if (isColumn(id)) {
-            if (!over) return
-
-            let targetContainerId = overId
-
-            // If hovering over an item, find its parent container
-            if (!isColumn(overId)) {
-                const overContainer = findColumn(overId)
-                if (!overContainer) return
-                targetContainerId = overContainer.id
-            }
-
-            const activeIndex = columns.findIndex(container => container.id === id)
-            const overIndex = columns.findIndex(container => container.id === targetContainerId)
-
-            const newColumns = arrayMove(columns, activeIndex, overIndex)
-            setColumns(newColumns)
-
-            await Promise.all(
-                newColumns.map((column, index) =>
-                    editColumn(boardId as string, column.id, index, "position")
-                )
-            )
-
-            return
-        }
-        // Cross column task DND
-        const activeContainer = findColumn(id)
-        const overContainer = findColumn(overId)
-
-        if (!activeContainer || !overContainer || activeContainer.id === overContainer.id) {
-            return
-        }
-
-        const activeItems = activeContainer.tasks
-        const overItems = overContainer.tasks
-
-        const activeIndex = activeItems.findIndex((task) => task.id === id)
-        const overIndex = overItems.findIndex((task) => task.id === overId)
-
-        let newIndex
-        if (overId) {
-            const isBelowLastItem =
-                over &&
-                overIndex === overItems.length - 1 &&
-                active.rect.offsetTop > over.rect.offsetTop + over.rect.height
-
-            const modifier = isBelowLastItem ? 1 : 0
-
-            newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1
-        } else {
-            newIndex = overItems.length + 1
-        }
-
-        const movedItem = {
-            ...activeItems[activeIndex],
-            columnId: overContainer.id
-        }
-
-        const newColumns = columns.map((container) => {
-            if (container.id === activeContainer.id) {
-                return {
-                    ...container,
-                    tasks: activeItems.filter(item => item.id !== id)
-                }
-            }
-            if (container.id === overContainer.id) {
-                return {
-                    ...container,
-                    tasks: [
-                        ...overItems.slice(0, newIndex),
-                        movedItem,
-                        ...overItems.slice(newIndex)
-                    ]
-                }
-            }
-            return container
-        })
-
-        setColumns(newColumns)
-    }
-
     const columnElements = columns.map((column) => {
         return (
             <Column key={column.id} boardId={boardId} column={column} taskName={taskName} columnName={columnName}
@@ -278,7 +98,9 @@ const BoardPage = () => {
 
     return (
         <div>
-            <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragOver={handleDragOver}
+            <DndContext onDragStart={(e) => handleDragStart(e, columns, setActiveColumn, lastColumnId, setActiveTask)}
+                        onDragEnd={(e) => handleDragEnd(e, columns, setColumns, lastColumnId, boardId, setActiveTask, setActiveColumn)}
+                        onDragOver={(e) => handleDragOver(e, columns, setColumns, boardId)}
                         sensors={sensors} collisionDetection={closestCenter}>
                 <h1>Board</h1>
                 <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)}
