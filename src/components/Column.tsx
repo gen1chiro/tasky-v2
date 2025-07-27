@@ -10,8 +10,9 @@ import Modal from "./modal/Modal.tsx"
 import ModalHeader from "./modal/ModalHeader.tsx"
 import ModalMessage from "./modal/ModalMessage.tsx"
 
-const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: { column: Column }) => {
+const Column = ({column, tasks, boardId, columnName}: { column: Column }) => {
     const deleteModalRef = useRef<HTMLDialogElement | null>(null)
+    const addTaskRef = useRef<HTMLDialogElement | null>(null)
 
     const {setNodeRef: setDroppableRef} = useDroppable({
         id: column.id
@@ -45,6 +46,21 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: { c
         await deleteColumn(boardId as string, column.id)
     }
 
+    const showAddTaskModal = () => {
+        addTaskRef.current?.showModal()
+    }
+
+    const hideAddTaskModal = () => {
+        addTaskRef.current?.close()
+    }
+
+    const handleAddTask = async (data) => {
+        hideAddTaskModal()
+        const task = Object.fromEntries(data)
+        console.log(task)
+        await addTask(boardId as string, column.id, task)
+    }
+
     return (
         <>
             <div
@@ -66,16 +82,14 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: { c
                     </button>
                 </div>
                 <div className='w-full flex gap-2 justify-center'>
-                    <input type='text' value={taskName} onChange={(e) => setTaskName(e.target.value)}
-                           className='bg-white flex-shrink'/>
-                    <button onClick={() => addTask(boardId as string, column.id, taskName)}
+                    <button onClick={showAddTaskModal}
                             className='bg-white rounded-md px-2'>add
                     </button>
                 </div>
                 <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
                     <div ref={setDroppableRef} className="w-full bg-white min-h-56">
                         {tasks.map((task) => (
-                            <Task key={task.id} task={task} boardId={boardId} column={column} taskName={taskName}/>
+                            <Task key={task.id} task={task} boardId={boardId}/>
                         ))}
                     </div>
                 </SortableContext>
@@ -93,6 +107,29 @@ const Column = ({column, tasks, boardId, columnName, taskName, setTaskName}: { c
                             className='bg-red-500 px-6 py-1 rounded text-white text-sm hover:bg-red-600'>Delete
                     </button>
                 </div>
+            </Modal>
+
+            <Modal ref={addTaskRef}>
+                <ModalHeader>Task Details</ModalHeader>
+                <ModalMessage>Enter you task details below</ModalMessage>
+                <form action={handleAddTask} className='w-full flex flex-col gap-3 mt-4'>
+                    <div className='flex flex-col'>
+                        <label htmlFor='name' className='text-sm'>Task Name</label>
+                        <input id='name' name='name' className='px-2 text-gray-600 border-gray-300 border rounded' required/>
+                    </div>
+                    <div className='flex flex-col'>
+                        <label htmlFor='description' className='text-sm'>Task Description</label>
+                        <textarea id='description' name='description' className='resize-none h-16 px-2 text-gray-600 border-gray-300 border rounded'/>
+                    </div>
+                    <div className='w-full flex justify-end gap-2 mt-4'>
+                        <button onClick={hideAddTaskModal} type='button'
+                                className='border-gray-300 border-1 px-6 py-1 rounded text-sm hover:bg-gray-100'>Cancel
+                        </button>
+                        <button
+                            className='bg-black px-6 py-1 rounded text-white text-sm hover:bg-zinc-800'>Add
+                        </button>
+                    </div>
+                </form>
             </Modal>
         </>
     )

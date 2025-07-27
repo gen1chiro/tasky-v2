@@ -6,7 +6,7 @@ import Modal from "./modal/Modal.tsx"
 import ModalHeader from "./modal/ModalHeader.tsx"
 import ModalMessage from "./modal/ModalMessage.tsx"
 
-const Task = ({task, boardId, taskName}) => {
+const Task = ({task, boardId}) => {
     const deleteModalRef = useRef<HTMLDialogElement | null>(null)
 
     const {
@@ -51,10 +51,11 @@ const Task = ({task, boardId, taskName}) => {
                     className={`p-2 rounded-md shadow-md flex flex-col items-center gap-2 bg-slate-200 ${isDragging ? 'opacity-50' : ''}`}
                 >
                     <h1>{task.name}</h1>
+                    <p>{task.description}</p>
                 </div>
                 <button onClick={showDeleteModal}>delete</button>
                 <button
-                    onClick={() => editTask(boardId, task.columnId, task.id, taskName, "name")}>rename
+                    /*onClick={() => editTask(boardId, task.columnId, task.id, taskName, "name")}*/>edit
                 </button>
             </div>
             <Modal ref={deleteModalRef}>

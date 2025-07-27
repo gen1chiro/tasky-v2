@@ -12,7 +12,7 @@ import {
 import { db } from '../firebase.ts'
 import type { Task } from "../../types/types.ts"
 
-export const addTask = async (boardId: string, columnId: string, taskName: string) => {
+export const addTask = async (boardId: string, columnId: string, task) => {
     try {
         const taskCollectionRef = collection(db, 'boards', boardId, 'columns', columnId, 'tasks')
         const taskQuery = query(taskCollectionRef, orderBy('position', 'desc'))
@@ -21,7 +21,8 @@ export const addTask = async (boardId: string, columnId: string, taskName: strin
         const newTaskPosition = !tasksSnapshot.empty ? tasksSnapshot.docs[0].data().position + 1 : 0
 
         await addDoc(taskCollectionRef, {
-            name: taskName,
+            name: task.name,
+            description: task.description || '',
             columnId: columnId,
             position: newTaskPosition,
             createdAt: serverTimestamp(),
@@ -32,11 +33,13 @@ export const addTask = async (boardId: string, columnId: string, taskName: strin
     }
 }
 
-export const addTaskAtPosition = async (boardId: string, columnId: string, taskId: string, taskName: string, position: number) => {
+export const addTaskAtPosition = async (boardId: string, columnId: string, task, position: number) => {
+    const {id, name, description} = task
     try {
-        const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', taskId)
+        const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', id)
         await setDoc(taskDocRef, {
-            name: taskName,
+            name: name,
+            description: description || '',
             columnId: columnId,
             position: position,
             createdAt: serverTimestamp(),

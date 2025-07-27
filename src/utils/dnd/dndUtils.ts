@@ -1,7 +1,7 @@
-import type {DragEndEvent, DragStartEvent} from "@dnd-kit/core";
-import {arrayMove} from "@dnd-kit/sortable";
-import {addTaskAtPosition, deleteTask, editTask} from "../../firebase/firestore/tasks.ts";
-import {editColumn} from "../../firebase/firestore/columns.ts";
+import type {DragEndEvent, DragStartEvent} from "@dnd-kit/core"
+import {arrayMove} from "@dnd-kit/sortable"
+import {addTaskAtPosition, deleteTask, editTask} from "../../firebase/firestore/tasks.ts"
+import {editColumn} from "../../firebase/firestore/columns.ts"
 
 const findColumn = (id, columns) => {
     const container = columns.find(column => column.id === id)
@@ -86,7 +86,7 @@ export const handleDragEnd = async (event: DragEndEvent, columns, setColumns, la
                 )
             )
         )
-        await addTaskAtPosition(boardId as string, overContainer.id, movedItem.id, movedItem.name, overIndex)
+        await addTaskAtPosition(boardId as string, overContainer.id, movedItem, overIndex)
     }
 
     setActiveTask(null)
