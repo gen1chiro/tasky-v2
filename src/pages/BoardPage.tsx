@@ -88,7 +88,7 @@ const BoardPage = () => {
             })
         })
         return () => unsubscribers.forEach(unsubscribe => unsubscribe())
-    }, [boardId])
+    }, [boardId, columns.length])
 
     const showAddColumnModal = () => {
         addColumnRef.current?.showModal()
