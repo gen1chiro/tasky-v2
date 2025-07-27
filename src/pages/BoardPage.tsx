@@ -16,15 +16,17 @@ import {db} from "../firebase/firebase.ts"
 import {collection, onSnapshot, query, orderBy, getDocs} from "firebase/firestore"
 import Column, {ColumnPreview} from "../components/Column.tsx"
 import {TaskPreview} from "../components/Task.tsx"
+import Modal from "../components/modal/Modal.tsx";
+import ModalHeader from "../components/modal/ModalHeader.tsx";
+import ModalMessage from "../components/modal/ModalMessage.tsx";
 
 const BoardPage = () => {
     const {board: initialBoard} = useLoaderData()
     const [columns, setColumns] = useState(initialBoard || [])
-    const [columnName, setColumnName] = useState<string>('')
-    const [taskName, setTaskName] = useState<string>('')
     const [activeTask, setActiveTask] = useState<string>(null)
     const [activeColumn, setActiveColumn] = useState(null)
     const lastColumnId = useRef<string | null>(null)
+    const addColumnRef = useRef<HTMLDialogElement | null>(null)
     const {boardId} = useParams<{ boardId: string }>()
 
     const sensors = useSensors(
@@ -85,42 +87,75 @@ const BoardPage = () => {
                 )
             })
         })
-
         return () => unsubscribers.forEach(unsubscribe => unsubscribe())
     }, [boardId])
 
+    const showAddColumnModal = () => {
+        addColumnRef.current?.showModal()
+    }
+
+    const hideAddColumnModal = () => {
+        addColumnRef.current?.close()
+    }
+
+    const handleAddColumn = async (data) => {
+        hideAddColumnModal()
+        const column = Object.fromEntries(data)
+        await addColumn(boardId as string, column)
+    }
+
     const columnElements = columns.map((column) => {
         return (
-            <Column key={column.id} boardId={boardId} column={column} taskName={taskName} columnName={columnName}
-                    setTaskName={setTaskName} tasks={column.tasks}/>
+            <Column key={column.id} boardId={boardId} column={column} tasks={column.tasks}/>
         )
     })
 
     return (
-        <div>
-            <DndContext onDragStart={(e) => handleDragStart(e, columns, setActiveColumn, lastColumnId, setActiveTask)}
-                        onDragEnd={(e) => handleDragEnd(e, columns, setColumns, lastColumnId, boardId, setActiveTask, setActiveColumn)}
-                        onDragOver={(e) => handleDragOver(e, columns, setColumns, boardId)}
-                        sensors={sensors} collisionDetection={closestCenter}>
-                <h1>Board</h1>
-                <input type='text' value={columnName} onChange={(e) => setColumnName(e.target.value)}
-                       className='border-black border'/>
-                <button onClick={() => addColumn(boardId as string, columnName)}>Add</button>
-                <SortableContext items={columns.map(column => column.id)} strategy={horizontalListSortingStrategy}>
-                    <div className='flex gap-4 bg-slate-400'>
-                        {columnElements}
+        <>
+            <div>
+                <DndContext
+                    onDragStart={(e) => handleDragStart(e, columns, setActiveColumn, lastColumnId, setActiveTask)}
+                    onDragEnd={(e) => handleDragEnd(e, columns, setColumns, lastColumnId, boardId, setActiveTask, setActiveColumn)}
+                    onDragOver={(e) => handleDragOver(e, columns, setColumns, boardId)}
+                    sensors={sensors} collisionDetection={closestCenter}>
+                    <h1>Board</h1>
+                    <button onClick={showAddColumnModal}>Add</button>
+                    <SortableContext items={columns.map(column => column.id)} strategy={horizontalListSortingStrategy}>
+                        <div className='flex gap-4 bg-slate-400'>
+                            {columnElements}
+                        </div>
+                    </SortableContext>
+                    <DragOverlay>
+                        {activeTask
+                            ? <TaskPreview task={activeTask}/>
+                            : activeColumn
+                                ? <ColumnPreview column={activeColumn}/>
+                                : null
+                        }
+                    </DragOverlay>
+                </DndContext>
+            </div>
+
+            <Modal ref={addColumnRef}>
+                <ModalHeader>Column Details</ModalHeader>
+                <ModalMessage>Enter column details below.</ModalMessage>
+                <form action={handleAddColumn} className='w-full flex flex-col gap-3 mt-4'>
+                    <div className='flex flex-col'>
+                        <label htmlFor='name' className='text-sm'>Column Name</label>
+                        <input id='name' name='name' className='px-2 text-gray-600 border-gray-300 border rounded'
+                               required/>
                     </div>
-                </SortableContext>
-                <DragOverlay>
-                    {activeTask
-                        ? <TaskPreview task={activeTask}/>
-                        : activeColumn
-                            ? <ColumnPreview column={activeColumn}/>
-                            : null
-                    }
-                </DragOverlay>
-            </DndContext>
-        </div>
+                    <div className='w-full flex justify-end gap-2 mt-4'>
+                        <button onClick={hideAddColumnModal} type='button'
+                                className='border-gray-300 border-1 px-6 py-1 rounded text-sm hover:bg-gray-100'>Cancel
+                        </button>
+                        <button
+                            className='bg-black px-6 py-1 rounded text-white text-sm hover:bg-zinc-800'>Add
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+        </>
     )
 }
 

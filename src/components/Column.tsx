@@ -10,7 +10,7 @@ import Modal from "./modal/Modal.tsx"
 import ModalHeader from "./modal/ModalHeader.tsx"
 import ModalMessage from "./modal/ModalMessage.tsx"
 
-const Column = ({column, tasks, boardId, columnName}: { column: Column }) => {
+const Column = ({column, tasks, boardId}: { column: Column }) => {
     const deleteModalRef = useRef<HTMLDialogElement | null>(null)
     const addTaskRef = useRef<HTMLDialogElement | null>(null)
 
@@ -57,7 +57,6 @@ const Column = ({column, tasks, boardId, columnName}: { column: Column }) => {
     const handleAddTask = async (data) => {
         hideAddTaskModal()
         const task = Object.fromEntries(data)
-        console.log(task)
         await addTask(boardId as string, column.id, task)
     }
 
@@ -74,7 +73,7 @@ const Column = ({column, tasks, boardId, columnName}: { column: Column }) => {
                 </div>
                 <h2 className='text-center font-bold'>{column.name}</h2>
                 <div className='flex justify-center gap-2'>
-                    <button onClick={() => editColumn(boardId as string, column.id, columnName, "name")}
+                    <button /*onClick={() => editColumn(boardId as string, column.id, columnName, "name")}*/
                             className='bg-white rounded-md px-2'>Rename
                     </button>
                     <button onClick={showDeleteModal}
@@ -111,7 +110,7 @@ const Column = ({column, tasks, boardId, columnName}: { column: Column }) => {
 
             <Modal ref={addTaskRef}>
                 <ModalHeader>Task Details</ModalHeader>
-                <ModalMessage>Enter you task details below</ModalMessage>
+                <ModalMessage>Enter you task details below.</ModalMessage>
                 <form action={handleAddTask} className='w-full flex flex-col gap-3 mt-4'>
                     <div className='flex flex-col'>
                         <label htmlFor='name' className='text-sm'>Task Name</label>

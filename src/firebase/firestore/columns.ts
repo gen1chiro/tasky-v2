@@ -12,7 +12,7 @@ import {
 import { db } from "../firebase.ts"
 import type { Column } from "../../types/types.ts"
 
-export const addColumn = async (boardId: string, columnName: string) => {
+export const addColumn = async (boardId: string, column) => {
     try {
         const columnsCollectionRef = collection(db, 'boards', boardId, 'columns')
         const columnQuery = query(columnsCollectionRef, orderBy('position', 'desc'))
@@ -21,7 +21,7 @@ export const addColumn = async (boardId: string, columnName: string) => {
         const newColumnPosition = !columnSnapshot.empty ? columnSnapshot.docs[0].data().position + 1 : 0
 
         await addDoc(columnsCollectionRef, {
-            name: columnName,
+            name: column.name,
             position: newColumnPosition,
             createdAt: serverTimestamp(),
         })
