@@ -23,6 +23,8 @@ export const addTask = async (boardId: string, columnId: string, task) => {
         await addDoc(taskCollectionRef, {
             name: task.name,
             description: task.description || '',
+            priority: task.priority,
+            dueDate: task.date || '',
             columnId: columnId,
             position: newTaskPosition,
             createdAt: serverTimestamp(),
@@ -40,6 +42,8 @@ export const addTaskAtPosition = async (boardId: string, columnId: string, task,
         await setDoc(taskDocRef, {
             name: name,
             description: description || '',
+            priority: task.priority,
+            dueDate: task.date || '',
             columnId: columnId,
             position: position,
             createdAt: serverTimestamp(),

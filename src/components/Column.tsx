@@ -57,6 +57,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
     const handleAddTask = async (data) => {
         hideAddTaskModal()
         const task = Object.fromEntries(data)
+        console.log(task)
         await addTask(boardId as string, column.id, task)
     }
 
@@ -74,7 +75,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
                 <h2 className='text-center font-bold'>{column.name}</h2>
                 <div className='flex justify-center gap-2'>
                     <button /*onClick={() => editColumn(boardId as string, column.id, columnName, "name")}*/
-                            className='bg-white rounded-md px-2'>Rename
+                        className='bg-white rounded-md px-2'>Rename
                     </button>
                     <button onClick={showDeleteModal}
                             className='bg-white rounded-md px-2'>Delete
@@ -114,11 +115,27 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
                 <form action={handleAddTask} className='w-full flex flex-col gap-3 mt-4'>
                     <div className='flex flex-col'>
                         <label htmlFor='name' className='text-sm'>Task Name</label>
-                        <input id='name' name='name' className='px-2 text-gray-600 border-gray-300 border rounded' required/>
+                        <input id='name' name='name' className='px-2 text-gray-600 border-gray-300 border rounded'
+                               required/>
                     </div>
                     <div className='flex flex-col'>
                         <label htmlFor='description' className='text-sm'>Task Description</label>
-                        <textarea id='description' name='description' className='resize-none h-16 px-2 text-gray-600 border-gray-300 border rounded'/>
+                        <textarea id='description' name='description'
+                                  className='resize-none h-16 px-2 text-gray-600 border-gray-300 border rounded'/>
+                    </div>
+                    <div className='flex flex-col'>
+                        <label htmlFor='date' className='text-sm'>Due Date</label>
+                        <input id='date' name='date' type='date'
+                               className='px-2 text-gray-600 border-gray-300 border rounded'/>
+                    </div>
+                    <div className='flex flex-col'>
+                        <label htmlFor='priority' className='text-sm'>Priority Level</label>
+                        <select id='priority' name='priority'
+                                className='px-2 text-gray-600 border-gray-300 border rounded'>
+                            <option value='low'>Low</option>
+                            <option value='medium'>Medium</option>
+                            <option value='high'>high</option>
+                        </select>
                     </div>
                     <div className='w-full flex justify-end gap-2 mt-4'>
                         <button onClick={hideAddTaskModal} type='button'

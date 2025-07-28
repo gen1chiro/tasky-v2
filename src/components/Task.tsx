@@ -52,6 +52,8 @@ const Task = ({task, boardId}) => {
                 >
                     <h1>{task.name}</h1>
                     <p>{task.description}</p>
+                    <p>{task.priority}</p>
+                    <p>{task.dueDate}</p>
                 </div>
                 <button onClick={showDeleteModal}>delete</button>
                 <button
