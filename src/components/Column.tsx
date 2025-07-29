@@ -57,7 +57,6 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
     const handleAddTask = async (data) => {
         hideAddTaskModal()
         const task = Object.fromEntries(data)
-        console.log(task)
         await addTask(boardId as string, column.id, task)
     }
 
@@ -66,7 +65,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
             <div
                 style={style}
                 ref={setNodeRef}
-                className={`flex flex-col items-center justify-center gap-4 w-80 bg-slate-300 p-4 ${isDragging ? 'opacity-50' : ''}`}>
+                className={`flex flex-col items-center justify-center gap-4 w-sm bg-slate-300 p-4 ${isDragging ? 'opacity-50' : ''}`}>
                 <div
                     {...attributes}
                     {...listeners}
@@ -87,7 +86,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
                     </button>
                 </div>
                 <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
-                    <div ref={setDroppableRef} className="w-full bg-white min-h-56">
+                    <div ref={setDroppableRef} className="w-full flex flex-col gap-2 bg-white min-h-56 p-2">
                         {tasks.map((task) => (
                             <Task key={task.id} task={task} boardId={boardId}/>
                         ))}
@@ -132,9 +131,9 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
                         <label htmlFor='priority' className='text-sm'>Priority Level</label>
                         <select id='priority' name='priority'
                                 className='px-2 text-gray-600 border-gray-300 border rounded'>
-                            <option value='low'>Low</option>
-                            <option value='medium'>Medium</option>
-                            <option value='high'>high</option>
+                            <option value='Low'>Low</option>
+                            <option value='Medium'>Medium</option>
+                            <option value='High'>high</option>
                         </select>
                     </div>
                     <div className='w-full flex justify-end gap-2 mt-4'>

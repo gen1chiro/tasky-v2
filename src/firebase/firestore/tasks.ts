@@ -9,8 +9,8 @@ import {
     query,
     orderBy, setDoc
 } from "firebase/firestore"
-import { db } from '../firebase.ts'
-import type { Task } from "../../types/types.ts"
+import {db} from '../firebase.ts'
+import type {Task} from "../../types/types.ts"
 
 export const addTask = async (boardId: string, columnId: string, task) => {
     try {
@@ -43,7 +43,7 @@ export const addTaskAtPosition = async (boardId: string, columnId: string, task,
             name: name,
             description: description || '',
             priority: task.priority,
-            dueDate: task.date || '',
+            dueDate: task.dueDate || '',
             columnId: columnId,
             position: position,
             createdAt: serverTimestamp(),
