@@ -9,6 +9,8 @@ import type {Column} from "../types/types.ts"
 import Modal from "./modal/Modal.tsx"
 import ModalHeader from "./modal/ModalHeader.tsx"
 import ModalMessage from "./modal/ModalMessage.tsx"
+import {IoIosAdd} from "react-icons/io"
+import {RxDragHandleDots2} from "react-icons/rx"
 
 const Column = ({column, tasks, boardId}: { column: Column }) => {
     const deleteModalRef = useRef<HTMLDialogElement | null>(null)
@@ -65,28 +67,36 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
             <div
                 style={style}
                 ref={setNodeRef}
-                className={`flex flex-col items-center justify-center gap-4 w-sm bg-slate-300 p-4 ${isDragging ? 'opacity-50' : ''}`}>
-                <div
-                    {...attributes}
-                    {...listeners}
-                >drag
-                </div>
-                <h2 className='text-center font-bold'>{column.name}</h2>
-                <div className='flex justify-center gap-2'>
-                    <button /*onClick={() => editColumn(boardId as string, column.id, columnName, "name")}*/
+                className={`flex flex-col items-center gap-4 min-w-sm bg-slate-100 p-3 rounded-xl ${isDragging ? 'opacity-50' : ''}`}>
+                <div className='w-full flex items-center justify-between'>
+                    <div className='flex items-center gap-2'>
+                        <h2 className='text-center'>{column.name}</h2>
+                        <div className='flex justify-center items-center rounded-full bg-blue-600 w-5 aspect-square'>
+                            <h1 className='text-white text-xs'>{tasks.length}</h1>
+                        </div>
+                    </div>
+                    <div className='flex items-center'>
+                        <button onClick={showAddTaskModal} className='rounded-full p-1 hover:bg-slate-200'>
+                            <IoIosAdd className='text-gray-600 text-xl'/>
+                        </button>
+                        <div
+                            {...attributes}
+                            {...listeners}
+                        >
+                            <RxDragHandleDots2 className='text-gray-600 text-xl'/>
+                        </div>
+                    </div>
+                    {/*<div className='flex justify-center gap-2'>
+                    <button onClick={() => editColumn(boardId as string, column.id, columnName, "name")}
                         className='bg-white rounded-md px-2'>Rename
                     </button>
                     <button onClick={showDeleteModal}
                             className='bg-white rounded-md px-2'>Delete
                     </button>
-                </div>
-                <div className='w-full flex gap-2 justify-center'>
-                    <button onClick={showAddTaskModal}
-                            className='bg-white rounded-md px-2'>add
-                    </button>
+                </div>*/}
                 </div>
                 <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
-                    <div ref={setDroppableRef} className="w-full flex flex-col gap-2 bg-white min-h-56 p-2">
+                    <div ref={setDroppableRef} className="w-full flex flex-col gap-2 min-h-56">
                         {tasks.map((task) => (
                             <Task key={task.id} task={task} boardId={boardId}/>
                         ))}

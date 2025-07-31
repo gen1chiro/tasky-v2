@@ -19,6 +19,7 @@ import {TaskPreview} from "../components/Task.tsx"
 import Modal from "../components/modal/Modal.tsx";
 import ModalHeader from "../components/modal/ModalHeader.tsx";
 import ModalMessage from "../components/modal/ModalMessage.tsx";
+import {IoIosAdd} from "react-icons/io"
 
 const BoardPage = () => {
     const {board: initialBoard} = useLoaderData()
@@ -112,17 +113,20 @@ const BoardPage = () => {
 
     return (
         <>
-            <div>
+            <div className='w-full'>
                 <DndContext
                     onDragStart={(e) => handleDragStart(e, columns, setActiveColumn, lastColumnId, setActiveTask)}
                     onDragEnd={(e) => handleDragEnd(e, columns, setColumns, lastColumnId, boardId, setActiveTask, setActiveColumn)}
                     onDragOver={(e) => handleDragOver(e, columns, setColumns, boardId)}
                     sensors={sensors} collisionDetection={closestCenter}>
                     <h1>Board</h1>
-                    <button onClick={showAddColumnModal}>Add</button>
                     <SortableContext items={columns.map(column => column.id)} strategy={horizontalListSortingStrategy}>
-                        <div className='flex gap-4 bg-slate-400'>
+                        <div className='w-full flex gap-4 items-start overflow-auto'>
                             {columnElements}
+                            <button onClick={showAddColumnModal}
+                                    className='bg-white rounded border border-slate-100 shadow hover:bg-slate-100 p-2'>
+                                <IoIosAdd className='text-gray-600 text-xl'/>
+                            </button>
                         </div>
                     </SortableContext>
                     <DragOverlay>
