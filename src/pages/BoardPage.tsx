@@ -113,7 +113,7 @@ const BoardPage = () => {
 
     return (
         <>
-            <div className='w-full'>
+            <main className='w-full h-screen'>
                 <DndContext
                     onDragStart={(e) => handleDragStart(e, columns, setActiveColumn, lastColumnId, setActiveTask)}
                     onDragEnd={(e) => handleDragEnd(e, columns, setColumns, lastColumnId, boardId, setActiveTask, setActiveColumn)}
@@ -138,7 +138,7 @@ const BoardPage = () => {
                         }
                     </DragOverlay>
                 </DndContext>
-            </div>
+            </main>
 
             <Modal ref={addColumnRef}>
                 <ModalHeader>Column Details</ModalHeader>
