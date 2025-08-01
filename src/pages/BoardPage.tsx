@@ -140,7 +140,7 @@ const BoardPage = () => {
                 </DndContext>
             </main>
 
-            <Modal ref={addColumnRef}>
+            <Modal ref={addColumnRef} onClose={hideAddColumnModal}>
                 <ModalHeader>Column Details</ModalHeader>
                 <ModalMessage>Enter column details below.</ModalMessage>
                 <form action={handleAddColumn} className='w-full flex flex-col gap-3 mt-4'>

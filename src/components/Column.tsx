@@ -126,7 +126,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
                         </button>
                         {showColumnPopover && (
                             <div
-                                className='absolute right-0 top-full bg-white shadow-md rounded-md border border-gray-300 w-40 z-10 text-gray-600'
+                                className='absolute right-0 top-full bg-white shadow-md rounded-md border border-gray-300 w-40 z-10 text-gray-600 text-sm'
                                 ref={popoverRef}
                             >
                                 <button onClick={showDeleteModal}
@@ -152,7 +152,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
                 </SortableContext>
             </div>
 
-            <Modal ref={deleteModalRef}>
+            <Modal ref={deleteModalRef} onClose={hideDeleteModal}>
                 <ModalHeader>Are you sure you want to delete this column?</ModalHeader>
                 <ModalMessage>This column along with its respective tasks will be deleted. This action cannot be
                     undone.</ModalMessage>
@@ -166,7 +166,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
                 </div>
             </Modal>
 
-            <Modal ref={editModalRef}>
+            <Modal ref={editModalRef} onClose={hideEditModal}>
                 <ModalHeader>Edit Column</ModalHeader>
                 <ModalMessage>Enter the new column name below.</ModalMessage>
                 <form action={handleEdit} className='w-full flex flex-col gap-3 mt-4'>
@@ -186,7 +186,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
                 </form>
             </Modal>
 
-            <Modal ref={addTaskRef}>
+            <Modal ref={addTaskRef} onClose={hideAddTaskModal}>
                 <ModalHeader>Task Details</ModalHeader>
                 <ModalMessage>Enter you task details below.</ModalMessage>
                 <form action={handleAddTask} className='w-full flex flex-col gap-3 mt-4'>

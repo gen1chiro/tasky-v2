@@ -97,7 +97,8 @@ const Dashboard = () => {
                 </div>
                 <button onClick={handleSignOut}>Log Out</button>
             </div>
-            <Modal ref={deleteModalRef}>
+
+            <Modal ref={deleteModalRef} onClose={hideDeleteModal}>
                 <ModalHeader>Are you sure you want to delete this board?</ModalHeader>
                 <ModalMessage>This action cannot be undone.</ModalMessage>
                 <div className='w-full flex justify-end gap-2 mt-4'>
