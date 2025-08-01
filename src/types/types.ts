@@ -11,6 +11,9 @@ export type Task = {
     columnId: string
     createdAt: Timestamp
     name: string
+    description: string
+    priority: string
+    dueDate: string
     position: number
 }
 
