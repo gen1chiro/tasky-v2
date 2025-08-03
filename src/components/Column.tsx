@@ -232,12 +232,27 @@ export default Column
 
 export const ColumnPreview = ({column}) => {
     return (
-        <div className="p-2 rounded-md shadow-md flex flex-col items-center gap-2 bg-slate-200">
-            <h1>{column.name}</h1>
-            <div className="w-full bg-white min-h-56 flex flex-col gap-4">
-                {column.tasks.map(task =>
+        <div className="flex flex-col items-center gap-4 min-w-sm max-w-sm bg-slate-100 p-3 rounded-xl shadow-md">
+            <div className="w-full flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <h2 className="text-center">{column.name}</h2>
+                    <div className="flex justify-center items-center rounded-full bg-blue-600 w-5 aspect-square">
+                        <h1 className="text-white text-xs">{column.tasks.length}</h1>
+                    </div>
+                </div>
+                <div className="flex items-center">
+                    <button className="rounded-full p-1">
+                        <IoIosAdd className="text-gray-600 text-xl"/>
+                    </button>
+                    <button className="rounded-full p-1">
+                        <SlOptionsVertical className="text-gray-600 text-sm"/>
+                    </button>
+                </div>
+            </div>
+            <div className="w-full flex flex-col gap-2 min-h-56">
+                {column.tasks.map((task) => (
                     <TaskPreview key={task.id} task={task}/>
-                )}
+                ))}
             </div>
         </div>
     )

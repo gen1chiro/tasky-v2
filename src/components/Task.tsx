@@ -70,7 +70,7 @@ const Task = ({task, boardId}) => {
                         <div
                             {...attributes}
                             {...listeners}
-                            className={`cursor-grab`}
+                            className='cursor-grab'
                         >
                             <RxDragHandleDots2 />
                         </div>
@@ -119,7 +119,12 @@ export const TaskPreview = ({task}) => {
 
     return (
         <div className='flex flex-col gap-1 w-full bg-white px-4 py-2 border border-gray-300 rounded-lg shadow'>
-            <h1 className='w-full text-left font-semibold text-sm'>{task.name}</h1>
+            <div className='w-full flex justify-between items-center'>
+                <h1 className='w-full text-left font-semibold text-sm'>{task.name}</h1>
+                <div>
+                    <RxDragHandleDots2/>
+                </div>
+            </div>
             {task.description
                 && <p className='w-full text left text-gray-600 text-sm truncate'>{task.description}</p>
             }
