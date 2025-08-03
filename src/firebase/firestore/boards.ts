@@ -121,5 +121,5 @@ export const boardLoader = async ({params}: { params: { boardId: string } }) => 
         })
     )
 
-    return { board }
+    return [ data, board ]
 }

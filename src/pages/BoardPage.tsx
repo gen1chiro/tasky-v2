@@ -1,5 +1,5 @@
 import {useState, useEffect, useRef} from "react"
-import {useLoaderData, useParams} from "react-router-dom"
+import {useLoaderData, useParams, useNavigate} from "react-router-dom"
 import {
     DndContext,
     closestCenter,
@@ -16,19 +16,21 @@ import {db} from "../firebase/firebase.ts"
 import {collection, onSnapshot, query, orderBy, getDocs} from "firebase/firestore"
 import Column, {ColumnPreview} from "../components/Column.tsx"
 import {TaskPreview} from "../components/Task.tsx"
-import Modal from "../components/modal/Modal.tsx";
-import ModalHeader from "../components/modal/ModalHeader.tsx";
-import ModalMessage from "../components/modal/ModalMessage.tsx";
+import Modal from "../components/modal/Modal.tsx"
+import ModalHeader from "../components/modal/ModalHeader.tsx"
+import ModalMessage from "../components/modal/ModalMessage.tsx"
 import {IoIosAdd} from "react-icons/io"
+import BoardHeader from "../components/BoardHeader.tsx"
 
 const BoardPage = () => {
-    const {board: initialBoard} = useLoaderData()
-    const [columns, setColumns] = useState(initialBoard || [])
+    const [data, board] = useLoaderData()
+    const [columns, setColumns] = useState(board || [])
     const [activeTask, setActiveTask] = useState<string>(null)
     const [activeColumn, setActiveColumn] = useState(null)
     const lastColumnId = useRef<string | null>(null)
     const addColumnRef = useRef<HTMLDialogElement | null>(null)
     const {boardId} = useParams<{ boardId: string }>()
+    const boardName = data?.name || "Untitled Board"
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -113,15 +115,15 @@ const BoardPage = () => {
 
     return (
         <>
-            <main className='w-full h-screen'>
+            <main className='w-full h-screen flex flex-col'>
                 <DndContext
                     onDragStart={(e) => handleDragStart(e, columns, setActiveColumn, lastColumnId, setActiveTask)}
                     onDragEnd={(e) => handleDragEnd(e, columns, setColumns, lastColumnId, boardId, setActiveTask, setActiveColumn)}
                     onDragOver={(e) => handleDragOver(e, columns, setColumns, boardId)}
                     sensors={sensors} collisionDetection={closestCenter}>
-                    <h1>Board</h1>
+                    <BoardHeader boardName={boardName} boardId={boardId}/>
                     <SortableContext items={columns.map(column => column.id)} strategy={horizontalListSortingStrategy}>
-                        <div className='w-full flex gap-4 items-start overflow-auto'>
+                        <div className='w-full flex-grow flex gap-4 items-start overflow-auto p-4 bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px]'>
                             {columnElements}
                             <button onClick={showAddColumnModal}
                                     className='bg-white rounded border border-slate-100 shadow hover:bg-slate-100 p-2'>
