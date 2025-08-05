@@ -15,7 +15,7 @@ export const formatDate = (date: string): string => {
     ]
 
     const [year, month, day] = date.split("-")
-    const monthStr = months[parseInt(month, 10) - 1] // Convert month to zero-based index
+    const monthStr = months[parseInt(month, 10) - 1]
 
     return `${day} ${monthStr} ${year}`
 }

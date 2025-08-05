@@ -1,7 +1,7 @@
 import {useState, useEffect, useRef} from "react"
 import {useAuth} from "../contexts/AuthContext.tsx"
 import {handleSignOut} from "../firebase/auth.ts"
-import {createBoard, getBoardsByUser, deleteBoard, renameBoard} from "../firebase/firestore/boards.ts"
+import {createBoard, getBoardsByUser, deleteBoard} from "../firebase/firestore/boards.ts"
 import {useNavigate} from "react-router-dom"
 import type {Board} from "../types/types.ts"
 import {collection, onSnapshot, where, query} from "firebase/firestore"
@@ -9,10 +9,11 @@ import {db} from "../firebase/firebase.ts"
 import Modal from "../components/modal/Modal.tsx"
 import ModalMessage from "../components/modal/ModalMessage.tsx"
 import ModalHeader from "../components/modal/ModalHeader.tsx"
+import {IoIosAdd} from "react-icons/io"
 
 const Dashboard = () => {
     const [boards, setBoards] = useState<Board[]>([])
-    const [boardTitle, setBoardTitle] = useState<string>('')
+    const addModalRef = useRef<HTMLDialogElement | null>(null)
     const deleteModalRef = useRef<HTMLDialogElement | null>(null)
     const {user} = useAuth()
     const navigate = useNavigate()
@@ -43,12 +44,6 @@ const Dashboard = () => {
         return () => unsubscribe()
     }, [user])
 
-    const handleAddBoard = async () => {
-        if (user) {
-            await createBoard(user.uid, boardTitle)
-        }
-    }
-
     const showDeleteModal = (e) => {
         deleteModalRef.current?.showModal()
         activeBoardId = e.target.id
@@ -63,6 +58,20 @@ const Dashboard = () => {
         await deleteBoard(activeBoardId)
     }
 
+    const showAddModal = () => {
+        addModalRef.current?.showModal()
+    }
+
+    const hideAddModal = () => {
+        addModalRef.current?.close()
+    }
+
+    const handleAdd = async (data) => {
+        hideAddModal()
+        const {name} = Object.fromEntries(data)
+        if (user) await createBoard(user.uid, name)
+    }
+
     const boardElements = boards.map(board => (
         <div key={board.id} className='bg-white text-black p-4 rounded-lg'>
             <h2 className='text-lg font-bold'>{board.name}</h2>
@@ -70,7 +79,6 @@ const Dashboard = () => {
             <div className='flex flex-col gap-2'>
                 <button onClick={() => navigate(board.id)}>Open</button>
                 <button id={board.id} onClick={showDeleteModal}>Delete</button>
-                <button onClick={() => renameBoard(board.id, boardTitle)}>Rename</button>
             </div>
         </div>
     ))
@@ -79,15 +87,9 @@ const Dashboard = () => {
         <>
             <div className='flex flex-col items-center gap-10 max-w-xl bg-slate-500 mx-auto text-white'>
                 <h1>Welcome {user?.email}</h1>
-                <input
-                    type='text'
-                    value={boardTitle}
-                    onChange={e => setBoardTitle(e.target.value)}
-                    className='bg-white text-black p-2 rounded-lg'
-                />
                 <div className='w-full flex justify-start px-4'>
-                    <button onClick={handleAddBoard} className='bg-white rounded-lg aspect-square w-28 text-black'>
-                        Add Board
+                    <button onClick={showAddModal} className='bg-white rounded-full aspect-square text-gray-600 text-lg p-4'>
+                        <IoIosAdd />
                     </button>
                 </div>
                 <div>
@@ -109,6 +111,26 @@ const Dashboard = () => {
                             className='bg-red-500 px-6 py-1 rounded text-white text-sm hover:bg-red-600'>Delete
                     </button>
                 </div>
+            </Modal>
+
+            <Modal ref={addModalRef} onClose={hideAddModal}>
+                <ModalHeader>Board details</ModalHeader>
+                <ModalMessage>Enter board details below.</ModalMessage>
+                <form action={handleAdd} className='w-full flex flex-col gap-3 mt-4'>
+                    <div className='flex flex-col'>
+                        <label htmlFor='name' className='text-sm'>Name</label>
+                        <input id='name' name='name' className='px-2 text-gray-600 border-gray-300 border rounded'
+                               required/>
+                    </div>
+                    <div className='w-full flex justify-end gap-2 mt-4'>
+                        <button onClick={hideAddModal} type='button'
+                                className='border-gray-300 border-1 px-6 py-1 rounded text-sm hover:bg-gray-100'>Cancel
+                        </button>
+                        <button
+                            className='bg-black px-6 py-1 rounded text-white text-sm hover:bg-zinc-800'>Add
+                        </button>
+                    </div>
+                </form>
             </Modal>
         </>
     )
