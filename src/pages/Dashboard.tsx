@@ -68,8 +68,10 @@ const Dashboard = () => {
 
     const handleAdd = async (data) => {
         hideAddModal()
-        const {name} = Object.fromEntries(data)
-        if (user) await createBoard(user.uid, name)
+        const {name, option} = Object.fromEntries(data)
+        const includeDefaults = option === 'on'
+
+        if (user) await createBoard(user.uid, name, includeDefaults)
     }
 
     const boardElements = boards.map(board => (
@@ -121,6 +123,10 @@ const Dashboard = () => {
                         <label htmlFor='name' className='text-sm'>Name</label>
                         <input id='name' name='name' className='px-2 text-gray-600 border-gray-300 border rounded'
                                required/>
+                    </div>
+                    <div className='flex justify-start gap-1'>
+                        <input type='checkbox' id='option' name='option' defaultChecked className='border-1 border-gray-300'/>
+                        <label htmlFor='option' className='text-xs text-gray-600'>Generate default columns</label>
                     </div>
                     <div className='w-full flex justify-end gap-2 mt-4'>
                         <button onClick={hideAddModal} type='button'

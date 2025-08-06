@@ -15,7 +15,7 @@ import {
 import type {Board} from "../../types/types.ts"
 import requireAuth from "../uitls/requireAuth.ts"
 
-export const createBoard = async (userUID: string, boardName: string) => {
+export const createBoard = async (userUID: string, boardName: string, includeDefaults: boolean) => {
     try {
         const collectionRef = collection(db, 'boards')
         const boardRef = await addDoc(collectionRef, {
@@ -23,6 +23,8 @@ export const createBoard = async (userUID: string, boardName: string) => {
             owner: userUID,
             createdAt: serverTimestamp(),
         })
+
+        if (!includeDefaults) return boardRef.id
 
         const defaultColumns = ["To Do", "In Progress", "Done"]
         const columnsCollectionRef = collection(db, 'boards', boardRef.id, 'columns')
