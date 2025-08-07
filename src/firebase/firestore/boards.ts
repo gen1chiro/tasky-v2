@@ -101,27 +101,31 @@ export const boardLoader = async ({params}: { params: { boardId: string } }) => 
         throw new Response('Forbidden', {status: 403})
     }
 
-    const columnRef = collection(db, 'boards', boardId, 'columns')
-    const columnQuery = query(columnRef, orderBy('position', 'asc'))
-    const columnSnapshot = await getDocs(columnQuery)
+    const boardDataPromise = async () => {
+        const columnRef = collection(db, 'boards', boardId, 'columns')
+        const columnQuery = query(columnRef, orderBy('position', 'asc'))
+        const columnSnapshot = await getDocs(columnQuery)
 
-    const board = await Promise.all(
-        columnSnapshot.docs.map(async (columnDoc) => {
-            const tasksRef = collection(db, 'boards', boardId, 'columns', columnDoc.id, 'tasks')
-            const taskQuery = query(tasksRef, orderBy('position', 'asc'))
-            const taskSnapshot = await getDocs(taskQuery)
+        return Promise.all(
+            columnSnapshot.docs.map(async (columnDoc) => {
+                const tasksRef = collection(db, 'boards', boardId, 'columns', columnDoc.id, 'tasks')
+                const taskQuery = query(tasksRef, orderBy('position', 'asc'))
+                const taskSnapshot = await getDocs(taskQuery)
+                return {
+                    id: columnDoc.id,
+                    ...columnDoc.data(),
+                    tasks: taskSnapshot.docs.map(taskDoc => ({
+                        id: taskDoc.id,
+                        columnId: columnDoc.id,
+                        ...taskDoc.data()
+                    }))
+                }
+            })
+        )
+    }
 
-            return {
-                id: columnDoc.id,
-                ...columnDoc.data(),
-                tasks: taskSnapshot.docs.map(taskDoc => ({
-                    id: taskDoc.id,
-                    columnId: columnDoc.id,
-                    ...taskDoc.data()
-                }))
-            }
-        })
-    )
-
-    return [ data, board ]
+    return ({
+        boardInfo: data,
+        initialBoardData: boardDataPromise()
+    })
 }

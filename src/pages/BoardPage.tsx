@@ -1,168 +1,42 @@
-import {useState, useEffect, useRef} from "react"
-import {useLoaderData, useParams, useNavigate} from "react-router-dom"
-import {
-    DndContext,
-    closestCenter,
-    useSensor,
-    useSensors,
-    PointerSensor,
-    KeyboardSensor,
-    DragOverlay,
-} from "@dnd-kit/core"
-import {SortableContext, horizontalListSortingStrategy, sortableKeyboardCoordinates} from "@dnd-kit/sortable"
-import {addColumn} from "../firebase/firestore/columns.ts"
-import {handleDragStart, handleDragEnd, handleDragOver} from "../utils/dnd/dndUtils.ts"
-import {db} from "../firebase/firebase.ts"
-import {collection, onSnapshot, query, orderBy, getDocs} from "firebase/firestore"
-import Column, {ColumnPreview} from "../components/Column.tsx"
-import {TaskPreview} from "../components/Task.tsx"
-import Modal from "../components/modal/Modal.tsx"
-import ModalHeader from "../components/modal/ModalHeader.tsx"
-import ModalMessage from "../components/modal/ModalMessage.tsx"
-import {IoIosAdd} from "react-icons/io"
+import {useLoaderData, useParams, Await} from "react-router-dom"
+import {ReactNode, Suspense} from "react"
+import Board from "../components/Board.tsx"
 import BoardHeader from "../components/BoardHeader.tsx"
 
 const BoardPage = () => {
-    const [data, board] = useLoaderData()
-    const [columns, setColumns] = useState(board || [])
-    const [activeTask, setActiveTask] = useState<string>(null)
-    const [activeColumn, setActiveColumn] = useState(null)
-    const lastColumnId = useRef<string | null>(null)
-    const addColumnRef = useRef<HTMLDialogElement | null>(null)
-    const {boardId} = useParams<{ boardId: string }>()
-    const boardName = data?.name || "Untitled Board"
-
-    const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    )
-
-    useEffect(() => {
-        const columnsCollectionRef = collection(db, 'boards', boardId as string, 'columns')
-        const columnsQuery = query(columnsCollectionRef, orderBy('position', 'asc'))
-
-        const unsubscribeColumns = onSnapshot(columnsQuery, async (snapshot) => {
-            const columnPromises = snapshot.docs.map(async (doc) => {
-                const tasksRef = collection(db, 'boards', boardId as string, 'columns', doc.id, 'tasks')
-                const tasksQuery = query(tasksRef, orderBy('position', 'asc'))
-                const taskSnapshot = await getDocs(tasksQuery)
-
-                return {
-                    id: doc.id,
-                    ...doc.data(),
-                    tasks: taskSnapshot.docs.map(taskDoc => ({
-                        id: taskDoc.id,
-                        columnId: doc.id,
-                        ...taskDoc.data()
-                    }))
-                }
-            })
-
-            const updatedColumns = await Promise.all(columnPromises)
-            setColumns(updatedColumns)
-        })
-
-        return () => unsubscribeColumns()
-    }, [boardId])
-
-    useEffect(() => {
-        if (!columns.length) return
-
-        const unsubscribers = columns.map(column => {
-            const tasksRef = collection(db, 'boards', boardId as string, 'columns', column.id, 'tasks')
-            const tasksQuery = query(tasksRef, orderBy('position', 'asc'))
-
-            return onSnapshot(tasksQuery, (snapshot) => {
-                const updatedTasks = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    columnId: column.id,
-                    ...doc.data()
-                }))
-
-                setColumns(prevColumns =>
-                    prevColumns.map(col =>
-                        col.id === column.id
-                            ? {...col, tasks: updatedTasks}
-                            : col
-                    )
-                )
-            })
-        })
-        return () => unsubscribers.forEach(unsubscribe => unsubscribe())
-    }, [boardId, columns.length])
-
-    const showAddColumnModal = () => {
-        addColumnRef.current?.showModal()
-    }
-
-    const hideAddColumnModal = () => {
-        addColumnRef.current?.close()
-    }
-
-    const handleAddColumn = async (data) => {
-        hideAddColumnModal()
-        const column = Object.fromEntries(data)
-        await addColumn(boardId as string, column)
-    }
-
-    const columnElements = columns.map((column) => {
-        return (
-            <Column key={column.id} boardId={boardId} column={column} tasks={column.tasks}/>
-        )
-    })
+    const { boardInfo, initialBoardData } = useLoaderData()
+    const { boardId } = useParams<{ boardId: string }>()
+    const boardName = boardInfo?.name || "Untitled Board"
 
     return (
-        <>
-            <main className='w-full h-screen flex flex-col'>
-                <DndContext
-                    onDragStart={(e) => handleDragStart(e, columns, setActiveColumn, lastColumnId, setActiveTask)}
-                    onDragEnd={(e) => handleDragEnd(e, columns, setColumns, lastColumnId, boardId, setActiveTask, setActiveColumn)}
-                    onDragOver={(e) => handleDragOver(e, columns, setColumns, boardId)}
-                    sensors={sensors} collisionDetection={closestCenter}>
-                    <BoardHeader boardName={boardName} boardId={boardId}/>
-                    <SortableContext items={columns.map(column => column.id)} strategy={horizontalListSortingStrategy}>
-                        <div className='w-full flex-grow flex gap-4 items-start overflow-auto p-4 bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px]'>
-                            {columnElements}
-                            <button onClick={showAddColumnModal}
-                                    className='bg-white rounded border border-slate-100 shadow hover:bg-slate-100 p-2'>
-                                <IoIosAdd className='text-gray-600 text-xl'/>
-                            </button>
-                        </div>
-                    </SortableContext>
-                    <DragOverlay>
-                        {activeTask
-                            ? <TaskPreview task={activeTask}/>
-                            : activeColumn
-                                ? <ColumnPreview column={activeColumn}/>
-                                : null
-                        }
-                    </DragOverlay>
-                </DndContext>
-            </main>
-
-            <Modal ref={addColumnRef} onClose={hideAddColumnModal}>
-                <ModalHeader>Column Details</ModalHeader>
-                <ModalMessage>Enter column details below.</ModalMessage>
-                <form action={handleAddColumn} className='w-full flex flex-col gap-3 mt-4'>
-                    <div className='flex flex-col'>
-                        <label htmlFor='name' className='text-sm'>Column Name</label>
-                        <input id='name' name='name' className='px-2 text-gray-600 border-gray-300 border rounded'
-                               required/>
-                    </div>
-                    <div className='w-full flex justify-end gap-2 mt-4'>
-                        <button onClick={hideAddColumnModal} type='button'
-                                className='border-gray-300 border-1 px-6 py-1 rounded text-sm hover:bg-gray-100'>Cancel
-                        </button>
-                        <button
-                            className='bg-black px-6 py-1 rounded text-white text-sm hover:bg-zinc-800'>Add
-                        </button>
-                    </div>
-                </form>
-            </Modal>
-        </>
+        <main className='w-full h-screen flex flex-col'>
+            <BoardHeader boardName={boardName} boardId={boardId}/>
+            <Suspense fallback={<BoardSkeleton /> as ReactNode}>
+                <Await resolve={initialBoardData}>
+                    {(initialData) => (
+                        <Board
+                            initialBoardData={initialData}
+                            boardId={boardId}
+                        /> as ReactNode
+                    )}
+                </Await>
+            </Suspense>
+        </main>
     )
 }
 
 export default BoardPage
+
+const BoardSkeleton = () => (
+    <div className='w-full flex-grow flex gap-4 items-start overflow-auto p-4'>
+        {[1, 2, 3].map(i => (
+            <div key={i} className='min-w-sm h-[292px] bg-slate-100 p-3 rounded-xl animate-pulse'>
+                <div className='h-6 bg-white rounded mb-4'></div>
+                <div className='space-y-3'>
+                    <div className='h-20 bg-white rounded'></div>
+                    <div className='h-16 bg-white rounded'></div>
+                </div>
+            </div>
+        ))}
+    </div>
+)
