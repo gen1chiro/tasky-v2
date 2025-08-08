@@ -1,12 +1,13 @@
-import { createBrowserRouter, createRoutesFromElements, Route, Outlet } from "react-router-dom"
+import {createBrowserRouter, createRoutesFromElements, Route, Outlet} from "react-router-dom"
 import Landing from "../pages/Landing.tsx"
 import LogIn from "../components/auth/LogIn.tsx"
 import ProtectedRoute from "../components/utils/ProtectedRoute.tsx"
 import Dashboard from "../pages/Dashboard.tsx"
 import SignUp from "../components/auth/SignUp.tsx"
 import BoardPage from "../pages/BoardPage.tsx"
-import { boardLoader } from "../firebase/firestore/boards.ts"
-import { ErrorBoundary } from "../components/utils/ErrorBoundary.tsx"
+import {boardLoader} from "../firebase/firestore/boards.ts"
+import {ErrorBoundary} from "../components/utils/ErrorBoundary.tsx"
+import type {ReactNode} from "react"
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -15,20 +16,21 @@ const router = createBrowserRouter(
             <Route path="/login" element={<LogIn/>}/>
             <Route path="/sign-up" element={<SignUp/>}/>
             <Route path="/app"
-                    element={
+                   element={
                        <ProtectedRoute>
                            <Outlet/>
                        </ProtectedRoute>
-                    }
-                    errorElement={
-                        <ProtectedRoute>
-                            <ErrorBoundary/>
-                        </ProtectedRoute>}
-                    >
+                   }
+                   errorElement={
+                       <ProtectedRoute>
+                           <ErrorBoundary/>
+                       </ProtectedRoute>
+                   }
+            >
                 <Route index element={<Dashboard/>}/>
                 <Route path=":boardId" element={<BoardPage/>} loader={boardLoader}/>
             </Route>
-        </Route>
+        </Route> as ReactNode
     )
 )
 

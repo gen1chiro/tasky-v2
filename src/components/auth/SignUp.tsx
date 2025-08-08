@@ -46,52 +46,54 @@ const SignUp = () => {
     return (
         <>
             {isUserLoggedIn && <Navigate to='/app' replace/>}
-            <div
-                className='max-w-sm mx-auto flex flex-col items-center gap-6 py-4 px-7  rounded-2xl shadow-xl border border-gray-100'>
-                <div className='w-full flex flex-col items-center'>
-                    <h1 className='text-2xl font-semibold tracking-wide'>Let's get started!</h1>
-                    <p className='text-sm text-gray-600'>Please enter your details</p>
+            <main className='w-full h-screen flex items-center justify-center bg-gray-100'>
+                <div
+                    className='w-11/12 max-w-sm bg-white flex flex-col items-center gap-6 py-4 px-7  rounded-2xl shadow-xl border border-gray-100'>
+                    <div className='w-full flex flex-col items-center'>
+                        <h1 className='text-2xl font-semibold tracking-wide'>Let's get started!</h1>
+                        <p className='text-sm text-gray-600'>Please enter your details</p>
+                    </div>
+                    <form onSubmit={handleSubmit} className='w-full flex flex-col items-center gap-4'>
+                        <input
+                            type='email'
+                            placeholder='Email'
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className={`w-full p-2 border-b focus:outline-0 focus:border-b-2 ${error ? 'border-red-500' : ''}`}
+                            required
+                        />
+                        <input
+                            type='password'
+                            placeholder='Password'
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className={`w-full p-2 border-b focus:outline-0 focus:border-b-2 ${error ? 'border-red-500' : ''}`}
+                            required
+                        />
+                        <input
+                            type='password'
+                            placeholder='Confirm Password'
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className={`w-full p-2 border-b focus:outline-0 focus:border-b-2 ${error ? 'border-red-500' : ''}`}
+                            required
+                        />
+                        {error && <p className='w-full text-red-500 text-xs text-left'>{error}</p>}
+                        <button
+                            type='submit'
+                            disabled={isSigningUp}
+                            className={`w-full bg-black text-white text-sm font-semibold py-2 mt-4 rounded-full hover:bg-zinc-800 ${isSigningUp ? 'opacity-50 cursor-not-allowed animate-pulse' : ''}`}
+                        >
+                            {isSigningUp ? 'Signing Up...' : 'Sign Up'}
+                        </button>
+                    </form>
+                    <p className='mt-8 text-xs text-gray-600'>Already have an account?
+                        <Link to="/login" className='font-semibold text-black hover:underline'>
+                            <span> Sign In</span>
+                        </Link>
+                    </p>
                 </div>
-                <form onSubmit={handleSubmit} className='w-full flex flex-col items-center gap-4'>
-                    <input
-                        type='email'
-                        placeholder='Email'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className={`w-full p-2 border-b focus:outline-0 focus:border-b-2 ${error ? 'border-red-500' : ''}`}
-                        required
-                    />
-                    <input
-                        type='password'
-                        placeholder='Password'
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className={`w-full p-2 border-b focus:outline-0 focus:border-b-2 ${error ? 'border-red-500' : ''}`}
-                        required
-                    />
-                    <input
-                        type='password'
-                        placeholder='Confirm Password'
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`w-full p-2 border-b focus:outline-0 focus:border-b-2 ${error ? 'border-red-500' : ''}`}
-                        required
-                    />
-                    {error && <p className='w-full text-red-500 text-xs text-left'>{error}</p>}
-                    <button
-                        type='submit'
-                        disabled={isSigningUp}
-                        className={`w-full bg-black text-white text-sm font-semibold py-2 mt-4 rounded-full hover:bg-zinc-800 ${isSigningUp ? 'opacity-50 cursor-not-allowed animate-pulse' : ''}`}
-                    >
-                        {isSigningUp ? 'Signing Up...' : 'Sign Up'}
-                    </button>
-                </form>
-                <p className='mt-8 text-xs text-gray-600'>Already have an account?
-                    <Link to="/login" className='font-semibold text-black hover:underline'>
-                        <span> Sign In</span>
-                    </Link>
-                </p>
-            </div>
+            </main>
         </>
     )
 }
