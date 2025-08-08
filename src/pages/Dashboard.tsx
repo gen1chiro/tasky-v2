@@ -2,13 +2,13 @@ import {useState, useEffect, useRef} from "react"
 import {useAuth} from "../contexts/AuthContext.tsx"
 import {handleSignOut} from "../firebase/auth.ts"
 import {createBoard, getBoardsByUser, deleteBoard} from "../firebase/firestore/boards.ts"
-import {useNavigate} from "react-router-dom"
 import type {Board} from "../types/types.ts"
 import {collection, onSnapshot, where, query} from "firebase/firestore"
 import {db} from "../firebase/firebase.ts"
 import Modal from "../components/modal/Modal.tsx"
 import ModalMessage from "../components/modal/ModalMessage.tsx"
 import ModalHeader from "../components/modal/ModalHeader.tsx"
+import BoardTile from "../components/BoardTile.tsx"
 import {IoIosAdd} from "react-icons/io"
 
 const Dashboard = () => {
@@ -16,7 +16,6 @@ const Dashboard = () => {
     const addModalRef = useRef<HTMLDialogElement | null>(null)
     const deleteModalRef = useRef<HTMLDialogElement | null>(null)
     const {user} = useAuth()
-    const navigate = useNavigate()
     let activeBoardId = ''
 
     useEffect(() => {
@@ -44,9 +43,10 @@ const Dashboard = () => {
         return () => unsubscribe()
     }, [user])
 
-    const showDeleteModal = (e) => {
+    const showDeleteModal = (id) => {
         deleteModalRef.current?.showModal()
-        activeBoardId = e.target.id
+        activeBoardId = id
+        console.log(activeBoardId)
     }
 
     const hideDeleteModal = () => {
@@ -68,38 +68,36 @@ const Dashboard = () => {
 
     const handleAdd = async (data) => {
         hideAddModal()
-        const {name, option} = Object.fromEntries(data)
+        const {name, color, option} = Object.fromEntries(data)
         const includeDefaults = option === 'on'
 
-        if (user) await createBoard(user.uid, name, includeDefaults)
+        if (user) await createBoard(user.uid, name, includeDefaults, color)
     }
 
     const boardElements = boards.map(board => (
-        <div key={board.id} className='bg-white text-black p-4 rounded-lg'>
-            <h2 className='text-lg font-bold'>{board.name}</h2>
-            <p>Created at: {board.createdAt?.toDate().toLocaleString()}</p>
-            <div className='flex flex-col gap-2'>
-                <button onClick={() => navigate(board.id)}>Open</button>
-                <button id={board.id} onClick={showDeleteModal}>Delete</button>
-            </div>
-        </div>
+        <BoardTile key={board.id} board={board} showModal={showDeleteModal}/>
     ))
 
     return (
         <>
-            <div className='flex flex-col items-center gap-10 max-w-xl bg-slate-500 mx-auto text-white'>
-                <h1>Welcome {user?.email}</h1>
-                <div className='w-full flex justify-start px-4'>
-                    <button onClick={showAddModal} className='bg-white rounded-full aspect-square text-gray-600 text-lg p-4'>
-                        <IoIosAdd />
+            <div className='w-11/12 max-w-7xl h-screen mx-auto text-white p-4'>
+                <div className='w-full flex justify-between'>
+                    <div className='flex items-center gap-4'>
+                        <h1 className='text-black font-bold text-4xl'>Boards</h1>
+                        <button onClick={showAddModal}
+                                className='flex justify-center items-center bg-black rounded-full aspect-square text-2xl font-bold w-6'>
+                            <IoIosAdd/>
+                        </button>
+                    </div>
+                    <button onClick={handleSignOut}
+                            className='bg-black px-4 rounded-full text-sm hover:bg-zinc-800 transition-colors duration-200'>Log
+                        Out
                     </button>
                 </div>
-                <div>
-                    {boardElements.length > 0 ?
-                        boardElements :
-                        <p>No boards available. Create one to get started!</p>}
-                </div>
-                <button onClick={handleSignOut}>Log Out</button>
+                {boardElements.length > 0
+                    ? <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5  gap-4 flex-wrap mt-8'>{boardElements}</div>
+                    : <div className='text-gray-600 w-full h-5/6 flex items-center justify-center'>No boards available. Create one to get started!</div>
+                }
             </div>
 
             <Modal ref={deleteModalRef} onClose={hideDeleteModal}>
@@ -124,8 +122,86 @@ const Dashboard = () => {
                         <input id='name' name='name' className='px-2 text-gray-600 border-gray-300 border rounded'
                                required/>
                     </div>
-                    <div className='flex justify-start gap-1'>
-                        <input type='checkbox' id='option' name='option' defaultChecked className='border-1 border-gray-300'/>
+                    <div className='flex flex-col'>
+                        <h1 className='text-sm'>Color</h1>
+                        <div className="flex gap-2">
+                            <input
+                                type="radio"
+                                id="color-blue"
+                                name="color"
+                                value="blue"
+                                defaultChecked
+                                className="sr-only peer/blue"
+                            />
+                            <label
+                                htmlFor="color-blue"
+                                className="w-6 h-6 rounded-full bg-blue-300 border-2 border-gray-200 cursor-pointer hover:border-gray-600 transition-colors peer-checked/blue:border-gray-600"
+                            ></label>
+
+                            <input
+                                type="radio"
+                                id="color-green"
+                                name="color"
+                                value="green"
+                                className="sr-only peer/green"
+                            />
+                            <label
+                                htmlFor="color-green"
+                                className="w-6 h-6 rounded-full bg-green-300 border-2 border-gray-200 cursor-pointer hover:border-gray-600 transition-colors peer-checked/green:border-gray-600"
+                            ></label>
+
+                            <input
+                                type="radio"
+                                id="color-red"
+                                name="color"
+                                value="red"
+                                className="sr-only peer/red"
+                            />
+                            <label
+                                htmlFor="color-red"
+                                className="w-6 h-6 rounded-full bg-red-300 border-2 border-gray-200 cursor-pointer hover:border-gray-600 transition-colors peer-checked/red:border-gray-600"
+                            ></label>
+
+                            <input
+                                type="radio"
+                                id="color-purple"
+                                name="color"
+                                value="purple"
+                                className="sr-only peer/purple"
+                            />
+                            <label
+                                htmlFor="color-purple"
+                                className="w-6 h-6 rounded-full bg-purple-300 border-2 border-gray-200 cursor-pointer hover:border-gray-600 transition-colors peer-checked/purple:border-gray-600"
+                            ></label>
+
+                            <input
+                                type="radio"
+                                id="color-orange"
+                                name="color"
+                                value="orange"
+                                className="sr-only peer/orange"
+                            />
+                            <label
+                                htmlFor="color-orange"
+                                className="w-6 h-6 rounded-full bg-orange-300 border-2 border-gray-200 cursor-pointer hover:border-gray-600 transition-colors peer-checked/orange:border-gray-600"
+                            ></label>
+
+                            <input
+                                type="radio"
+                                id="color-pink"
+                                name="color"
+                                value="pink"
+                                className="sr-only peer/pink"
+                            />
+                            <label
+                                htmlFor="color-pink"
+                                className="w-6 h-6 rounded-full bg-pink-300 border-2 border-gray-200 cursor-pointer hover:border-gray-600 transition-colors peer-checked/pink:border-gray-600"
+                            ></label>
+                        </div>
+                    </div>
+                    <div className='flex justify-start gap-1 mt-1'>
+                        <input type='checkbox' id='option' name='option' defaultChecked
+                               className='border-1 border-gray-300'/>
                         <label htmlFor='option' className='text-xs text-gray-600'>Generate default columns</label>
                     </div>
                     <div className='w-full flex justify-end gap-2 mt-4'>

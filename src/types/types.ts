@@ -4,6 +4,7 @@ export type Board = {
     id: string
     name: string
     owner: string
+    color: string
     createdAt: Timestamp
 }
 

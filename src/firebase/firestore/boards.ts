@@ -15,12 +15,13 @@ import {
 import type {Board} from "../../types/types.ts"
 import requireAuth from "../uitls/requireAuth.ts"
 
-export const createBoard = async (userUID: string, boardName: string, includeDefaults: boolean) => {
+export const createBoard = async (userUID: string, boardName: string, includeDefaults: boolean, color: string) => {
     try {
         const collectionRef = collection(db, 'boards')
         const boardRef = await addDoc(collectionRef, {
             name: boardName,
             owner: userUID,
+            color: color,
             createdAt: serverTimestamp(),
         })
 
