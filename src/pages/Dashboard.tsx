@@ -80,25 +80,35 @@ const Dashboard = () => {
 
     return (
         <>
-            <div className='w-11/12 max-w-7xl h-screen mx-auto text-white p-4'>
-                <div className='w-full flex justify-between'>
-                    <div className='flex items-center gap-4'>
-                        <h1 className='text-black font-bold text-4xl'>Boards</h1>
+            <main className='w-11/12 max-w-7xl h-screen mx-auto text-white p-4 transition-colors duration-200'>
+                <div className='w-full flex justify-between items-center border-b border-gray-300 py-6'>
+                    <div className='flex items-center gap-6'>
+                        <h1 className='text-black font-bold text-3xl'>Boards</h1>
                         <button onClick={showAddModal}
-                                className='flex justify-center items-center bg-black rounded-full aspect-square text-2xl font-bold w-6'>
-                            <IoIosAdd/>
+                                className='flex justify-center items-center gap-2 pr-3 pl-1 py-1 bg-blue-600 hover:bg-blue-500 rounded'>
+                            <IoIosAdd className='text-lg font-bold'/>
+                            <span className='text-sm'>New board</span>
                         </button>
                     </div>
                     <button onClick={handleSignOut}
-                            className='bg-black px-4 rounded-full text-sm hover:bg-zinc-800 transition-colors duration-200'>Log
-                        Out
+                            className='bg-black px-3 py-1 rounded text-sm hover:bg-zinc-800'>
+                        Log Out
                     </button>
                 </div>
+                <div className='flex items-center gap-2 mt-8 mb-4'>
+                    <p className='text-black text-lg'>Owned Boards</p>
+                    <div className="flex justify-center items-center rounded-full bg-blue-600 w-5 aspect-square">
+                        <h1 className="text-white text-sm">{boards.length}</h1>
+                    </div>
+                </div>
                 {boardElements.length > 0
-                    ? <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5  gap-4 flex-wrap mt-8'>{boardElements}</div>
-                    : <div className='text-gray-600 w-full h-5/6 flex items-center justify-center'>No boards available. Create one to get started!</div>
+                    ? <div
+                        className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5  gap-4 flex-wrap'>{boardElements}</div>
+                    : <div className='text-gray-600 w-full h-5/6 flex items-center justify-center'>No boards available.
+                        Create one to get started!</div>
                 }
-            </div>
+                <p className='text-black text-lg mt-8 mb-4'>Team Boards</p>
+            </main>
 
             <Modal ref={deleteModalRef} onClose={hideDeleteModal}>
                 <ModalHeader>Are you sure you want to delete this board?</ModalHeader>
