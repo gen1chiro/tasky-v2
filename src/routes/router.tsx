@@ -8,6 +8,7 @@ import BoardPage from "../pages/BoardPage.tsx"
 import {boardLoader} from "../firebase/firestore/boards.ts"
 import {ErrorBoundary} from "../components/utils/ErrorBoundary.tsx"
 import type {ReactNode} from "react"
+import SharePage from "../pages/SharePage.tsx"
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -28,6 +29,7 @@ const router = createBrowserRouter(
                    }
             >
                 <Route index element={<Dashboard/>}/>
+                <Route path="share" element={<SharePage/>}/>
                 <Route path=":boardId" element={<BoardPage/>} loader={boardLoader}/>
             </Route>
         </Route> as ReactNode

@@ -10,7 +10,8 @@ import {
     getDoc,
     deleteDoc,
     updateDoc,
-    orderBy
+    orderBy,
+    or
 } from 'firebase/firestore'
 import type {Board} from "../../types/types.ts"
 import requireAuth from "../uitls/requireAuth.ts"
@@ -22,6 +23,7 @@ export const createBoard = async (userUID: string, boardName: string, includeDef
             name: boardName,
             owner: userUID,
             color: color,
+            members: [userUID],
             createdAt: serverTimestamp(),
         })
 
@@ -44,6 +46,18 @@ export const createBoard = async (userUID: string, boardName: string, includeDef
     } catch (err) {
         console.error('Error creating board:', err)
         throw new Error('Failed to create board')
+    }
+}
+
+export const addBoardMember = async (boardId: string, userUID: string) => {
+    try {
+        const boardRef = doc(db, 'boards', boardId)
+        await updateDoc(boardRef, {
+            members: [...(await getDoc(boardRef)).data()?.members || [], userUID]
+        })
+    } catch (err) {
+        console.error('Error adding board member:', err)
+        throw new Error('Failed to add board member')
     }
 }
 
@@ -70,7 +84,10 @@ export const getBoardsByUser = async (userUID: string) => {
     try {
         const q = query(
             collection(db, 'boards'),
-            where('owner', '==', userUID),
+            or(
+                where('owner', '==', userUID),
+                where('members', 'array-contains', userUID)
+            )
         )
 
         const snapshot = await getDocs(q)
@@ -98,7 +115,7 @@ export const boardLoader = async ({params}: { params: { boardId: string } }) => 
         throw new Response('Not Found', {status: 404})
     }
 
-    if (data.owner !== user?.uid) {
+    if (data.owner !== user?.uid && !data.members.includes(user?.uid)) {
         throw new Response('Forbidden', {status: 403})
     }
 

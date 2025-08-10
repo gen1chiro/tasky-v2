@@ -5,6 +5,7 @@ import BoardHeader from "../components/BoardHeader.tsx"
 
 const BoardPage = () => {
     const { boardInfo, initialBoardData } = useLoaderData()
+    console.log(boardInfo)
     const { boardId } = useParams<{ boardId: string }>()
     const boardName = boardInfo?.name || "Untitled Board"
 

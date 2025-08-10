@@ -78,6 +78,8 @@ const Dashboard = () => {
         <BoardTile key={board.id} board={board} showModal={showDeleteModal}/>
     ))
 
+    console.log(boards)
+
     return (
         <>
             <main className='w-11/12 max-w-7xl h-screen mx-auto text-white p-4 transition-colors duration-200'>
@@ -107,7 +109,12 @@ const Dashboard = () => {
                     : <div className='text-gray-600 w-full h-5/6 flex items-center justify-center'>No boards available.
                         Create one to get started!</div>
                 }
-                <p className='text-black text-lg mt-8 mb-4'>Team Boards</p>
+                <div className='flex items-center gap-2 mt-8 mb-4'>
+                    <p className='text-black text-lg'>Team Boards</p>
+                    <div className="flex justify-center items-center rounded-full bg-blue-600 w-5 aspect-square">
+                        <h1 className="text-white text-sm">0</h1>
+                    </div>
+                </div>
             </main>
 
             <Modal ref={deleteModalRef} onClose={hideDeleteModal}>

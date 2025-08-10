@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useAuth } from "../../contexts/AuthContext.tsx"
 import { handleSignIn, handleSignInWithGoogle } from "../../firebase/auth.ts"
 import GoogleIcon from '../../assets/Google_Favicon.png'
-import { Link, Navigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 
 const LogIn = () => {
     const [email, setEmail] = useState<string>('')
@@ -11,6 +11,9 @@ const LogIn = () => {
     const [isLoggingInWithGoogle, setIsLoggingInWithGoogle] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
     const { isUserLoggedIn } = useAuth()
+    const navigate = useNavigate()
+    const location = useLocation()
+    const from = location.state?.from?.pathname || '/app'
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -58,7 +61,7 @@ const LogIn = () => {
 
     return (
         <>
-            {isUserLoggedIn && <Navigate to='/app' replace/>}
+            {isUserLoggedIn && navigate(from, { replace: true })}
             <main className='w-full h-screen flex items-center justify-center bg-gray-100'>
                 <div
                     className='w-11/12 max-w-sm bg-white flex flex-col items-center gap-6 py-4 px-7  rounded-2xl shadow-xl border border-gray-100'>
