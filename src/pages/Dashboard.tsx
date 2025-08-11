@@ -1,7 +1,8 @@
 import {useState, useEffect, useRef} from "react"
 import {useAuth} from "../contexts/AuthContext.tsx"
 import {handleSignOut} from "../firebase/auth.ts"
-import {createBoard, getBoardsByUser, deleteBoard} from "../firebase/firestore/boards.ts"
+import {or} from "firebase/firestore"
+import {createBoard, deleteBoard} from "../firebase/firestore/boards.ts"
 import type {Board} from "../types/types.ts"
 import {collection, onSnapshot, where, query} from "firebase/firestore"
 import {db} from "../firebase/firebase.ts"
@@ -16,21 +17,23 @@ const Dashboard = () => {
     const addModalRef = useRef<HTMLDialogElement | null>(null)
     const deleteModalRef = useRef<HTMLDialogElement | null>(null)
     const {user} = useAuth()
+    const userBoards = boards.filter(board => board.owner === user?.uid)
+    let teamBoards: Board[] = []
+    if (user) teamBoards = boards.filter(board => board.members.includes(user.uid) && board.owner !== user?.uid)
     let activeBoardId = ''
 
     useEffect(() => {
-        const fetchBoards = async () => {
-            if (user) {
-                const userBoards = await getBoardsByUser(user.uid)
-                setBoards(userBoards)
-            }
-        }
-        fetchBoards()
-    }, [user])
+        if (!user?.uid) return
 
-    useEffect(() => {
         const boardsCollectionRef = collection(db, 'boards')
-        const boardsQuery = query(boardsCollectionRef, where('owner', '==', user?.uid))
+
+        const boardsQuery = query(
+            boardsCollectionRef,
+            or(
+                where('owner', '==', user.uid),
+                where('members', 'array-contains', user.uid)
+            )
+        )
 
         const unsubscribe = onSnapshot(boardsQuery, (snapshot) => {
             const updatedBoards = snapshot.docs.map((doc) => ({
@@ -74,15 +77,17 @@ const Dashboard = () => {
         if (user) await createBoard(user.uid, name, includeDefaults, color)
     }
 
-    const boardElements = boards.map(board => (
+    const userBoardElements = userBoards.map(board => (
         <BoardTile key={board.id} board={board} showModal={showDeleteModal}/>
     ))
 
-    console.log(boards)
+    const teamBoardElements = teamBoards.map(board => (
+        <BoardTile key={board.id} board={board} showModal={showDeleteModal}/>
+    ))
 
     return (
         <>
-            <main className='w-11/12 max-w-7xl h-screen mx-auto text-white p-4 transition-colors duration-200'>
+            <main className='w-11/12 max-w-7xl mx-auto text-white p-4 transition-colors duration-200'>
                 <div className='w-full flex justify-between items-center border-b border-gray-300 py-6'>
                     <div className='flex items-center gap-6'>
                         <h1 className='text-black font-bold text-3xl'>Boards</h1>
@@ -100,21 +105,27 @@ const Dashboard = () => {
                 <div className='flex items-center gap-2 mt-8 mb-4'>
                     <p className='text-black text-lg'>Owned Boards</p>
                     <div className="flex justify-center items-center rounded-full bg-blue-600 w-5 aspect-square">
-                        <h1 className="text-white text-sm">{boards.length}</h1>
+                        <h1 className="text-white text-sm">{userBoards.length}</h1>
                     </div>
                 </div>
-                {boardElements.length > 0
+                {userBoardElements.length > 0
                     ? <div
-                        className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5  gap-4 flex-wrap'>{boardElements}</div>
-                    : <div className='text-gray-600 w-full h-5/6 flex items-center justify-center'>No boards available.
+                        className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5  gap-4 flex-wrap'>{userBoardElements}</div>
+                    : <div className='text-gray-600 bg-gray-100 rounded w-full h-28 flex items-center justify-center'>No boards available.
                         Create one to get started!</div>
                 }
                 <div className='flex items-center gap-2 mt-8 mb-4'>
                     <p className='text-black text-lg'>Team Boards</p>
                     <div className="flex justify-center items-center rounded-full bg-blue-600 w-5 aspect-square">
-                        <h1 className="text-white text-sm">0</h1>
+                        <h1 className="text-white text-sm">{teamBoards.length}</h1>
                     </div>
                 </div>
+                {teamBoardElements.length > 0
+                    ? <div
+                        className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5  gap-4 flex-wrap'>{teamBoardElements}</div>
+                    : <div className='text-gray-600 bg-gray-100 rounded w-full h-28 mb-10 flex items-center justify-center'>No boards available.
+                        Create one to get started!</div>
+                }
             </main>
 
             <Modal ref={deleteModalRef} onClose={hideDeleteModal}>

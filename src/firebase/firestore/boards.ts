@@ -6,12 +6,10 @@ import {
     getDocs,
     serverTimestamp,
     query,
-    where,
     getDoc,
     deleteDoc,
     updateDoc,
-    orderBy,
-    or
+    orderBy
 } from 'firebase/firestore'
 import type {Board} from "../../types/types.ts"
 import requireAuth from "../uitls/requireAuth.ts"
@@ -80,6 +78,7 @@ export const renameBoard = async (boardId: string, newName) => {
     }
 }
 
+/*
 export const getBoardsByUser = async (userUID: string) => {
     try {
         const q = query(
@@ -102,6 +101,7 @@ export const getBoardsByUser = async (userUID: string) => {
         throw new Error('Failed to fetch boards')
     }
 }
+*/
 
 export const boardLoader = async ({params}: { params: { boardId: string } }) => {
     const {boardId} = params
