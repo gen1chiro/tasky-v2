@@ -29,7 +29,12 @@ const BoardHeader = ({boardName, boardId}) => {
         <>
             <header className='flex justify-between py-4 px-8 border border-gray-200'>
                 <div className='flex items-center gap-4'>
-                    <button onClick={() => navigate('/app')}>HOME</button>
+                    <button
+                        onClick={() => navigate('/app')}
+                        className='flex items-center justify-center w-6 h-6 bg-blue-500 rounded'
+                    >
+                        <img src='../../public/tasky.png' alt='tasky logo' className='w-11/12 aspect-square'/>
+                    </button>
                     {
                         isEditing ? (
                             <input

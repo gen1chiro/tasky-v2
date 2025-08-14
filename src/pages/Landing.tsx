@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import Navbar from "../components/landing/Navbar.tsx"
 
 const Landing = () => {
 
     return (
-        <Link to="/login">Log In</Link>
+        <>
+            <Navbar/>
+        </>
     )
 }
 

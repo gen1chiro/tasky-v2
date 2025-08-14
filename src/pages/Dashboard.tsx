@@ -89,12 +89,12 @@ const Dashboard = () => {
         <>
             <main className='w-11/12 max-w-7xl mx-auto text-white p-4 transition-colors duration-200'>
                 <div className='w-full flex justify-between items-center border-b border-gray-300 py-6'>
-                    <div className='flex items-center gap-6'>
+                    <div className='flex items-center gap-4'>
                         <h1 className='text-black font-bold text-3xl'>Boards</h1>
                         <button onClick={showAddModal}
-                                className='flex justify-center items-center gap-2 pr-3 pl-1 py-1 bg-blue-600 hover:bg-blue-500 rounded'>
+                                className='flex justify-center items-center gap-2 sm:pr-3 sm:pl-1 py-1 px-1 bg-blue-600 hover:bg-blue-500 rounded-full sm:rounded'>
                             <IoIosAdd className='text-lg font-bold'/>
-                            <span className='text-sm'>New board</span>
+                            <span className='text-sm hidden sm:block'>New board</span>
                         </button>
                     </div>
                     <button onClick={handleSignOut}
