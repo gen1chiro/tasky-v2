@@ -4,7 +4,7 @@ import tasky from '../../assets/tasky.png'
 
 const Navbar = () => {
     return (
-        <header className="sticky top-0 w-full flex items-center justify-center">
+        <header className="sticky top-4 z-10 w-full flex items-center justify-center">
             <nav
                 className="w-11/12 max-w-7xl flex justify-between items-center px-4 py-2 border border-gray-200 rounded-lg backdrop-blur-xs bg-gray-200/50 shadow-md">
                 <Link to="/" className="flex items-center w-8 p-1 rounded bg-blue-500">
