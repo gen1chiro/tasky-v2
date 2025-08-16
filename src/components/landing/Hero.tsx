@@ -1,5 +1,7 @@
-import {Link} from "react-router-dom";
-import React from "react";
+import {Link} from "react-router-dom"
+import React from "react"
+import heroImage from "../../assets/hero.png"
+import heroImageMobile from "../../assets/hero2.png"
 
 const Hero = () => {
     return (
@@ -19,9 +21,9 @@ const Hero = () => {
                         started</Link>
                 </div>
             </div>
-            <img src="../../../public/hero.png" alt="app"
+            <img src={heroImage as string} alt="app"
                  className="hidden lg:block rounded-t-3xl border border-gray-200 w-11/12 shadow-lg"/>
-            <img src="../../../public/hero2.png" alt="app"
+            <img src={heroImageMobile as string} alt="app"
                  className="lg:hidden rounded-t-3xl border border-gray-200 w-11/12 shadow-lg"/>
         </div>
     )

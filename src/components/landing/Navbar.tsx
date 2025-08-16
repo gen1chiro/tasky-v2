@@ -1,5 +1,6 @@
 import React from 'react'
-import {Link} from "react-router-dom";
+import {Link} from "react-router-dom"
+import tasky from '../../assets/tasky.png'
 
 const Navbar = () => {
     return (
@@ -7,7 +8,7 @@ const Navbar = () => {
             <nav
                 className="w-11/12 max-w-7xl flex justify-between items-center px-4 py-2 border border-gray-200 rounded-lg backdrop-blur-xs bg-gray-200/50 shadow-md">
                 <Link to="/" className="flex items-center w-8 p-1 rounded bg-blue-500">
-                    <img src='../../../public/tasky.png' alt="tasky" />
+                    <img src={tasky as string} alt="tasky" />
                 </Link>
                 <ul className='hidden sm:flex items-center gap-4 text-sm cursor-pointer'>
                     <li className='hover:font-medium'>Product</li>

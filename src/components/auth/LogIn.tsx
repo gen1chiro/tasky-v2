@@ -105,7 +105,7 @@ const LogIn = () => {
                             className={`w-full flex items-center justify-center gap-2 bg-gray-100 text-black text-sm font-semibold py-2 rounded-full hover:bg-gray-200 ${isLoggingInWithGoogle ? 'opacity-50 cursor-not-allowed animate-pulse' : ''}`}
                         >
                             <img
-                                src={GoogleIcon}
+                                src={GoogleIcon as string}
                                 alt='google logo'
                                 className='aspect-square w-5'
                             />

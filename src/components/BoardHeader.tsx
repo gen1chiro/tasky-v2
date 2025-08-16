@@ -5,6 +5,7 @@ import Modal from "./modal/Modal.tsx"
 import ModalHeader from "./modal/ModalHeader.tsx"
 import ModalMessage from "./modal/ModalMessage.tsx"
 import {MdLink} from "react-icons/md"
+import tasky from '../assets/tasky.png'
 
 const BoardHeader = ({boardName, boardId}) => {
     const [name, setName] = useState<string>(boardName)
@@ -33,7 +34,7 @@ const BoardHeader = ({boardName, boardId}) => {
                         onClick={() => navigate('/app')}
                         className='flex items-center justify-center w-6 h-6 bg-blue-500 rounded'
                     >
-                        <img src='../../public/tasky.png' alt='tasky logo' className='w-11/12 aspect-square'/>
+                        <img src={tasky as string} alt='tasky logo' className='w-11/12 aspect-square'/>
                     </button>
                     {
                         isEditing ? (
