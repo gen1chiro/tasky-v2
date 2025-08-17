@@ -1,6 +1,10 @@
 import React from 'react'
 import FeatureTile from './FeatureTile'
 import feature1 from '../../assets/feature1.png'
+import feature2 from '../../assets/feature2.png'
+import feature3 from '../../assets/feature3.png'
+import feature4 from '../../assets/feature4.png'
+import feature5 from '../../assets/feature5.png'
 
 const Features = () => {
     return (
@@ -11,9 +15,9 @@ const Features = () => {
                     management
                     experience.</h1>
             </div>
-            <div className="w-5/6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FeatureTile aspect="aspect-square sm:aspect-video">
-                    <div className="relative flex-grow">
+            <div className="w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <FeatureTile aspect="aspect-video">
+                    <div className="relative flex-grow overflow-hidden">
                         <img
                             src={feature1 as string}
                             alt="feature"
@@ -28,30 +32,69 @@ const Features = () => {
                             intuitive drag-and-drop interface, keeping your workflow organized and flexible.</p>
                     </div>
                 </FeatureTile>
-                <FeatureTile aspect="aspect-square sm:aspect-video">
+                <FeatureTile aspect="aspect-video">
+                    <div className="relative flex-grow overflow-hidden">
+                        <img
+                            src={feature2 as string}
+                            alt="feature"
+                            className="rounded-lg border border-b-0 border-gray-200  w-full h-full object-top object-cover"
+                        />
+                        <div
+                            className="absolute bottom-0  w-full h-2/3 bg-gradient-to-t from-slate-50 to-transparent rounded-b-lg"></div>
+                    </div>
                     <div>
                         <h2 className='font-medium'>Real-Time Collaboration</h2>
                         <p className='text-xs sm:text-sm font-light'>See updates instantly as teammates move tasks, add
                             comments, or update details — no refresh needed.</p>
                     </div>
                 </FeatureTile>
-                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <FeatureTile aspect="aspect-square">
+                <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <FeatureTile aspect="apect-video lg:aspect-square">
+                        <div className="relative flex-grow overflow-hidden">
+                            <img
+                                src={feature3 as string}
+                                alt="feature"
+                                className="rounded-lg border border-b-0 border-gray-200  w-full h-full object-cover"
+                            />
+                            <div
+                                className="absolute bottom-0  w-full h-2/3 bg-gradient-to-t from-slate-50 to-transparent rounded-b-lg"></div>
+                        </div>
                         <div>
                             <h2 className='font-medium'>Board Sharing</h2>
-                            <p className='text-xs sm:text-sm font-light'>Share boards with teammates or clients in one click.</p>
+                            <p className='text-xs sm:text-sm font-light'>Share boards with teammates or clients in one
+                                click.</p>
                         </div>
                     </FeatureTile>
-                    <FeatureTile aspect="aspect-square">
+                    <FeatureTile aspect="apect-video lg:aspect-square">
+                        <div className="relative flex-grow overflow-hidden">
+                            <img
+                                src={feature4 as string}
+                                alt="feature"
+                                className="rounded-lg border border-b-0 border-gray-200  w-full h-full object-left-top object-cover"
+                            />
+                            <div
+                                className="absolute bottom-0  w-full h-2/3 bg-gradient-to-t from-slate-50 to-transparent rounded-b-lg"></div>
+                        </div>
                         <div>
                             <h2 className='font-medium'>Customizable Workflows</h2>
-                            <p className='text-xs sm:text-sm font-light'>Freely edit boards, tasks, and columns to your project needs.</p>
+                            <p className='text-xs sm:text-sm font-light'>Freely edit boards, tasks, and columns to your
+                                project needs.</p>
                         </div>
                     </FeatureTile>
-                    <FeatureTile aspect="aspect-square">
+                    <FeatureTile aspect="apect-video lg:aspect-square">
+                        <div className="relative flex-grow overflow-hidden">
+                            <img
+                                src={feature5 as string}
+                                alt="feature"
+                                className="rounded-lg border border-b-0 border-gray-200 w-full h-full object-cover"
+                            />
+                            <div
+                                className="absolute bottom-0  w-full h-2/3 bg-gradient-to-t from-slate-50 to-transparent rounded-b-lg"></div>
+                        </div>
                         <div>
                             <h2 className='font-medium'>Deadline & Priority Tracking</h2>
-                            <p className='text-xs sm:text-sm font-light'>Assign due dates and set priorities so important tasks stay visible and on track.</p>
+                            <p className='text-xs sm:text-sm font-light'>Assign due dates and set priorities so
+                                important tasks stay visible and on track.</p>
                         </div>
                     </FeatureTile>
                 </div>
