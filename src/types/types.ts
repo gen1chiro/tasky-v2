@@ -25,3 +25,11 @@ export type Column = {
     position: number
     createdAt: Timestamp
 }
+
+export type plan = {
+    id: number
+    name: string
+    price: string
+    desc: string
+    features: string[]
+}

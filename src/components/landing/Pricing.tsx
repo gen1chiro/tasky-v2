@@ -1,0 +1,71 @@
+import {useState} from 'react'
+import PlanTile from './PlanTile.tsx'
+import type {plan} from '../../types/types.ts'
+
+const plans: plan[] = [
+    {
+        id: 0,
+        name: "Hobby",
+        price: "$0",
+        desc: "For individuals who like to keep it simple and fun.",
+        features: [
+            "Unlimited boards & tasks",
+            "Real-time collaboration",
+            "Drag-and-drop interface",
+            "Team sharing & permissions",
+            "Cloud sync across devices",
+            "Regular updates & improvements",
+        ],
+    },
+    {
+        id: 1,
+        name: "Team",
+        price: "$0",
+        desc: "For early-stage startups and scaling companies.",
+        features: [
+            "Unlimited boards & tasks",
+            "Real-time collaboration",
+            "Drag-and-drop interface",
+            "Team sharing & permissions",
+            "Cloud sync across devices",
+            "Regular updates & improvements",
+        ],
+    },
+    {
+        id: 2,
+        name: "Enterprise",
+        price: "$0",
+        desc: "For organizations with custom needs and advanced security.",
+        features: [
+            "Unlimited boards & tasks",
+            "Real-time collaboration",
+            "Drag-and-drop interface",
+            "Team sharing & permissions",
+            "Cloud sync across devices",
+            "Regular updates & improvements",
+        ],
+    },
+]
+
+const Pricing = () => {
+    const [selectedPlanId, setSelectedPlanId] = useState(0)
+    const planElements = plans.map(plan =>
+        <PlanTile plan={plan} selectedPlanId={selectedPlanId} setSelectedPlanId={setSelectedPlanId}/>
+    )
+
+    return (
+        <div className="w-11/12 max-w-7xl flex flex-col items-center pt-14 gap-8">
+            <div className="w-5/6 md:w-1/2 flex flex-col items-center gap-3">
+                <p className="w-fit mx-auto px-2 text-center bg-blue-500 text-white text-xs rounded-full">Pricing</p>
+                <h1 className='w-full text-center text-xl md:text-3xl font-medium'>Simple pricing for everyone.</h1>
+                <p className="w-full text-center text-xs md:text-sm text-gray-600">Tasky is completely free — no credit
+                    card, no hidden fees. Enjoy unlimited boards, tasks, and collaboration without restrictions.</p>
+            </div>
+            <div className="w-5/6 flex items-center gap-2 justify-between bg-slate-50 border border-gray-200 shadow rounded-3xl p-1">
+                {planElements}
+            </div>
+        </div>
+    )
+}
+
+export default Pricing
