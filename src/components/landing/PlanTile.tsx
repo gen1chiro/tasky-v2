@@ -16,17 +16,17 @@ const PlanTile = ({plan, selectedPlanId, setSelectedPlanId}) => {
     }
 
     return (
-        <div className={`w-full flex flex-col gap-4 p-4 ${isSelected ? 'bg-white' : ''} hover:bg-white rounded-3xl border hover:border-gray-200 ${isSelected ? 'border-gray-200' : 'border-slate-50'} transition-colors duration-200 cursor-pointer`}
+        <div className={`w-full flex flex-col gap-4 p-4 ${isSelected ? 'bg-white shadow-lg' : ''} rounded-3xl border hover:border-gray-200 ${isSelected ? 'border-gray-200' : 'border-slate-50'} transition-colors duration-200 cursor-pointer`}
             onClick={handleTileClick}
         >
             <div>
                 <h2 className='text-md font-medium'>{plan.name}</h2>
-                <h1 className='text-xl font-semibold flex items-center gap-1'>{plan.price}<span
+                <h1 className='text-2xl font-semibold flex items-center gap-1'>{plan.price}<span
                     className='text-sm text-gray-600 font-light'> /month</span></h1>
             </div>
             <p className='text-sm text-gray-600 font-light'>{plan.desc}</p>
             <Link to='/sign-up'
-                  className='bg-white hover:bg-gray-100 text-sm font-medium text-center border border-gray-300 rounded-md py-1 transition-colors duration-200'>Try for
+                  className={`${isSelected ? 'bg-blue-600 text-white hover:bg-blue-500 shadow' : 'bg-white hover:bg-gray-100'} text-sm font-medium text-center border border-gray-300 rounded-md py-1 transition-colors duration-200`}>Try for
                 free
             </Link>
             <hr className='border-gray-200'/>

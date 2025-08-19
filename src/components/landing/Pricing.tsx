@@ -12,7 +12,7 @@ const plans: plan[] = [
             "Unlimited boards & tasks",
             "Real-time collaboration",
             "Drag-and-drop interface",
-            "Team sharing & permissions",
+            "Team sharing",
             "Cloud sync across devices",
             "Regular updates & improvements",
         ],
@@ -26,7 +26,7 @@ const plans: plan[] = [
             "Unlimited boards & tasks",
             "Real-time collaboration",
             "Drag-and-drop interface",
-            "Team sharing & permissions",
+            "Team sharing",
             "Cloud sync across devices",
             "Regular updates & improvements",
         ],
@@ -40,7 +40,7 @@ const plans: plan[] = [
             "Unlimited boards & tasks",
             "Real-time collaboration",
             "Drag-and-drop interface",
-            "Team sharing & permissions",
+            "Team sharing",
             "Cloud sync across devices",
             "Regular updates & improvements",
         ],
@@ -48,9 +48,9 @@ const plans: plan[] = [
 ]
 
 const Pricing = () => {
-    const [selectedPlanId, setSelectedPlanId] = useState(0)
+    const [selectedPlanId, setSelectedPlanId] = useState(1)
     const planElements = plans.map(plan =>
-        <PlanTile plan={plan} selectedPlanId={selectedPlanId} setSelectedPlanId={setSelectedPlanId}/>
+        <PlanTile key={plan.id} plan={plan} selectedPlanId={selectedPlanId} setSelectedPlanId={setSelectedPlanId}/>
     )
 
     return (
@@ -61,7 +61,7 @@ const Pricing = () => {
                 <p className="w-full text-center text-xs md:text-sm text-gray-600">Tasky is completely free — no credit
                     card, no hidden fees. Enjoy unlimited boards, tasks, and collaboration without restrictions.</p>
             </div>
-            <div className="w-5/6 flex items-center gap-2 justify-between bg-slate-50 border border-gray-200 shadow rounded-3xl p-1">
+            <div className="w-5/6 flex flex-wrap md:flex-nowrap items-center justify-between gap-2 bg-slate-50 border border-gray-200 shadow rounded-3xl p-1">
                 {planElements}
             </div>
         </div>
