@@ -1,4 +1,3 @@
-import React from 'react'
 import {Link} from "react-router-dom"
 import tasky from '../../assets/tasky.png'
 
@@ -13,8 +12,8 @@ const Navbar = () => {
                 <ul className='hidden sm:flex items-center gap-4 text-sm cursor-pointer'>
                     <li className='hover:font-medium'>Product</li>
                     <li className='hover:font-medium'>Features</li>
-                    <li className='hover:font-medium'>Customers</li>
                     <li className='hover:font-medium'>Pricing</li>
+                    <li className='hover:font-medium'>FAQ</li>
                 </ul>
                 <div className='flex items-center gap-2'>
                     <Link to="/sign-up"

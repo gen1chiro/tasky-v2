@@ -1,4 +1,3 @@
-import React from 'react'
 import FeatureTile from './FeatureTile'
 import feature1 from '../../assets/feature1.png'
 import feature2 from '../../assets/feature2.png'
@@ -15,7 +14,7 @@ const Features = () => {
                     management
                     experience.</h1>
             </div>
-            <div className="w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="w-full md:w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <FeatureTile aspect="aspect-video">
                     <div className="relative flex-grow overflow-hidden">
                         <img

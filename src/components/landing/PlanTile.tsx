@@ -1,8 +1,14 @@
-import React from 'react'
 import {Link} from 'react-router-dom'
 import { FaRegCircleCheck } from "react-icons/fa6"
+import {type Plan} from '../../types/types.ts'
 
-const PlanTile = ({plan, selectedPlanId, setSelectedPlanId}) => {
+interface PlanTileProps {
+    plan: Plan
+    selectedPlanId: number
+    setSelectedPlanId: (id: number) => void
+}
+
+const PlanTile = ({plan, selectedPlanId, setSelectedPlanId}: PlanTileProps) => {
     const isSelected = plan.id === selectedPlanId
     const features = plan.features.map((feature, i) =>
         <li key={i} className="flex items-center gap-1 mt-4">

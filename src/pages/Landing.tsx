@@ -2,6 +2,7 @@ import Navbar from "../components/landing/Navbar.tsx"
 import Hero from "../components/landing/Hero.tsx"
 import Features from "../components/landing/Features.tsx"
 import Pricing from "../components/landing/Pricing.tsx"
+import FaqSection from "../components/landing/Faq.tsx"
 
 const Landing = () => {
 
@@ -11,6 +12,7 @@ const Landing = () => {
             <Hero/>
             <Features/>
             <Pricing/>
+            <FaqSection/>
             {/*<img src="../../public/test.png"/>*/}
         </div>
     )

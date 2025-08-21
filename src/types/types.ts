@@ -26,10 +26,15 @@ export type Column = {
     createdAt: Timestamp
 }
 
-export type plan = {
+export type Plan = {
     id: number
     name: string
     price: string
     desc: string
     features: string[]
+}
+
+export type Faq = {
+    question: string
+    answer: string
 }

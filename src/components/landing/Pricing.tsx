@@ -1,8 +1,8 @@
 import {useState} from 'react'
 import PlanTile from './PlanTile.tsx'
-import type {plan} from '../../types/types.ts'
+import type {Plan} from '../../types/types.ts'
 
-const plans: plan[] = [
+const plans: Plan[] = [
     {
         id: 0,
         name: "Hobby",
@@ -61,7 +61,7 @@ const Pricing = () => {
                 <p className="w-full text-center text-xs md:text-sm text-gray-600">Tasky is completely free — no credit
                     card, no hidden fees. Enjoy unlimited boards, tasks, and collaboration without restrictions.</p>
             </div>
-            <div className="w-5/6 flex flex-wrap md:flex-nowrap items-center justify-between gap-2 bg-slate-50 border border-gray-200 shadow rounded-3xl p-1">
+            <div className="w-full md:w-5/6 flex flex-wrap md:flex-nowrap items-start justify-between gap-2 bg-slate-50 border border-gray-200 shadow rounded-3xl p-1">
                 {planElements}
             </div>
         </div>
