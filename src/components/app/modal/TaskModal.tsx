@@ -1,7 +1,7 @@
 import {useState} from "react"
 import Modal from "./Modal.tsx"
 import {MdModeEditOutline} from "react-icons/md"
-import {editTask} from "../../firebase/firestore/tasks.ts"
+import {editTask} from "../../../firebase/firestore/tasks.ts"
 
 const TaskModal = ({children, ref, task, hide, boardId}) => {
     const [taskName, setTaskName] = useState<string>(task.name)

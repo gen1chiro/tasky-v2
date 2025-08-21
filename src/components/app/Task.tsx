@@ -1,11 +1,11 @@
 import {useRef} from "react";
 import {useSortable} from "@dnd-kit/sortable"
 import {CSS} from "@dnd-kit/utilities"
-import {deleteTask} from "../firebase/firestore/tasks.ts"
+import {deleteTask} from "../../firebase/firestore/tasks.ts"
 import Modal from "./modal/Modal.tsx"
 import ModalHeader from "./modal/ModalHeader.tsx"
 import ModalMessage from "./modal/ModalMessage.tsx"
-import {formatDate, formatPriority} from "../utils/taskUtils.ts"
+import {formatDate, formatPriority} from "../../utils/taskUtils.ts"
 import {CiFlag1} from "react-icons/ci"
 import {RxDragHandleDots2} from "react-icons/rx"
 import TaskModal from "./modal/TaskModal.tsx"

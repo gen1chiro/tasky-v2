@@ -1,11 +1,11 @@
 import {useState, useRef} from "react"
 import {useNavigate} from "react-router-dom"
-import {renameBoard} from "../firebase/firestore/boards.ts"
+import {renameBoard} from "../../firebase/firestore/boards.ts"
 import Modal from "./modal/Modal.tsx"
 import ModalHeader from "./modal/ModalHeader.tsx"
 import ModalMessage from "./modal/ModalMessage.tsx"
 import {MdLink} from "react-icons/md"
-import tasky from '../assets/tasky.png'
+import tasky from '../../assets/tasky.png'
 
 const BoardHeader = ({boardName, boardId}) => {
     const [name, setName] = useState<string>(boardName)

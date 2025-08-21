@@ -1,7 +1,7 @@
 import {useLoaderData, useParams, Await} from "react-router-dom"
 import {ReactNode, Suspense} from "react"
-import Board from "../components/Board.tsx"
-import BoardHeader from "../components/BoardHeader.tsx"
+import Board from "../components/app/Board.tsx"
+import BoardHeader from "../components/app/BoardHeader.tsx"
 
 const BoardPage = () => {
     const { boardInfo, initialBoardData } = useLoaderData()

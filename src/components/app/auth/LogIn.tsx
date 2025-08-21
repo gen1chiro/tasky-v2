@@ -1,10 +1,10 @@
 import React, {useState} from 'react'
-import {useAuth} from "../../contexts/AuthContext.tsx"
-import {handleSignIn, handleSignInWithGoogle} from "../../firebase/auth.ts"
-import GoogleIcon from '../../assets/Google_Favicon.png'
+import {useAuth} from "../../../contexts/AuthContext.tsx"
+import {handleSignIn, handleSignInWithGoogle} from "../../../firebase/auth.ts"
+import GoogleIcon from '../../../assets/Google_Favicon.png'
 import {Link, useNavigate, useLocation} from "react-router-dom"
 import {FirebaseError} from "firebase/app"
-import tasky from '../../assets/tasky.png'
+import tasky from '../../../assets/tasky.png'
 
 const LogIn = () => {
     const [email, setEmail] = useState<string>('')
