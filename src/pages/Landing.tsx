@@ -3,6 +3,7 @@ import Hero from "../components/landing/Hero.tsx"
 import Features from "../components/landing/Features.tsx"
 import Pricing from "../components/landing/Pricing.tsx"
 import FaqSection from "../components/landing/Faq.tsx"
+import CtaBanner from "../components/landing/CtaBanner.tsx"
 
 const Landing = () => {
 
@@ -13,6 +14,7 @@ const Landing = () => {
             <Features/>
             <Pricing/>
             <FaqSection/>
+            <CtaBanner/>
             {/*<img src="../../public/test.png"/>*/}
         </div>
     )
