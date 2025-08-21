@@ -5,18 +5,19 @@ import tasky from '../../assets/tasky.png'
 
 const Footer = () => {
     return (
-        <footer className="w-full mb-6">
-            <div className="flex items-start justify-between w-11/12 max-w-7xl mx-auto py-8">
-                <div>
+        <footer className="w-full mb-4">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between w-11/12 max-w-7xl mx-auto py-8 gap-8">
+                <div className="lg:flex-shrink-0">
                     <div className='flex items-center gap-2 mb-1'>
                         <div className='flex items-center bg-blue-500 rounded p-[1px]'>
                             <img src={tasky as string} alt="tasky" className='w-4 h-4'/>
                         </div>
                         <h1 className='font-medium'>Tasky</h1>
                     </div>
-                    <p className='text-xs text-gray-600'>The smarter way to plan, track, and complete your work.</p>
+                    <p className='text-xs text-gray-600 max-w-xs'>The smarter way to plan, track, and complete your work.</p>
                 </div>
-                <div className='flex items-start gap-18'>
+
+                <div className='grid grid-cols-2 md:grid-cols-4 lg:flex lg:items-start gap-8 lg:gap-18'>
                     <div>
                         <h2 className='font-medium pb-1'>Quick Links</h2>
                         <ul className='text-xs text-gray-600 space-y-2'>
@@ -62,10 +63,20 @@ const Footer = () => {
                     </div>
                 </div>
             </div>
-            <div className='w-11/12 max-w-7xl mx-auto pt-4 text-xs text-gray-600 flex items-center justify-between'>
-                <p>&copy; {new Date().getFullYear()} Tasky. All rights reserved.</p>
-                <p>Designed & Developed by <a href='https://github.com/gen1chiro' target='_blank'
-                                              className='font-medium text-black'>Jul Leo Javellana</a></p>
+
+            <div className='w-11/12 max-w-7xl mx-auto pt-4'>
+                <div className='text-xs text-gray-600 flex flex-col sm:flex-row items-center sm:justify-between gap-2'>
+                    <p>&copy; {new Date().getFullYear()} Tasky. All rights reserved.</p>
+                    <p className="text-center sm:text-right">
+                        Designed & Developed by{' '}
+                        <a href='https://github.com/gen1chiro'
+                           target='_blank'
+                           rel='noopener noreferrer'
+                           className='font-medium text-black hover:text-blue-600 transition-colors duration-200'>
+                            Jul Leo Javellana
+                        </a>
+                    </p>
+                </div>
             </div>
         </footer>
     )
