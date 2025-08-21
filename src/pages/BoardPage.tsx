@@ -1,5 +1,5 @@
 import {useLoaderData, useParams, Await} from "react-router-dom"
-import {ReactNode, Suspense} from "react"
+import {type ReactNode, Suspense} from "react"
 import Board from "../components/app/Board.tsx"
 import BoardHeader from "../components/app/BoardHeader.tsx"
 
