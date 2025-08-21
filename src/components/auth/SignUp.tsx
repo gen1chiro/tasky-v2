@@ -1,7 +1,9 @@
-import React, { useState } from "react"
-import { Link, Navigate } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthContext.tsx"
-import { handleSignUp } from "../../firebase/auth.ts"
+import React, {useState} from "react"
+import {Link, Navigate} from "react-router-dom"
+import {useAuth} from "../../contexts/AuthContext.tsx"
+import {handleSignUp} from "../../firebase/auth.ts"
+import {FirebaseError} from "firebase/app"
+import tasky from "../../assets/tasky.png"
 
 const SignUp = () => {
     const [email, setEmail] = useState<string>('')
@@ -9,7 +11,7 @@ const SignUp = () => {
     const [confirmPassword, setConfirmPassword] = useState<string>('')
     const [isSigningUp, setIsSigningUp] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
-    const { isUserLoggedIn } = useAuth()
+    const {isUserLoggedIn} = useAuth()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -25,20 +27,20 @@ const SignUp = () => {
         try {
             await handleSignUp(email, password)
         } catch (err) {
-            console.error(err)
             setIsSigningUp(false)
-            //setEmail('')
-            //setPassword('')
-            //setConfirmPassword('')
 
-            if (err.code === "auth/email-already-in-use") {
-                setError("This email is already in use. Please try another.")
-            } else if (err.code === "auth/invalid-email") {
-                setError("Invalid email format. Please check your email.")
-            } else if (err.code === "auth/weak-password") {
-                setError("Password is too weak. Please choose a stronger password.")
+            if (err instanceof FirebaseError) {
+                if (err.code === "auth/email-already-in-use") {
+                    setError("This email is already in use. Please try another.");
+                } else if (err.code === "auth/invalid-email") {
+                    setError("Invalid email format. Please check your email.");
+                } else if (err.code === "auth/weak-password") {
+                    setError("Password is too weak. Please choose a stronger password.");
+                } else {
+                    setError("Failed to sign up. Please try again.");
+                }
             } else {
-                setError("Failed to sign up. Please try again.")
+                setError("An unexpected error occurred. Please try again.");
             }
         }
     }
@@ -46,9 +48,12 @@ const SignUp = () => {
     return (
         <>
             {isUserLoggedIn && <Navigate to='/app' replace/>}
-            <main className='w-full h-screen flex items-center justify-center bg-gray-100'>
+            <main className='w-full h-screen flex items-center justify-center bg-white bg-[radial-gradient(100%_150%_at_50%_50%,rgba(0,163,255,0.13)_0,rgba(0,163,255,0)_50%,rgba(0,163,255,0)_100%)]'>
                 <div
                     className='w-11/12 max-w-sm bg-white flex flex-col items-center gap-6 py-4 px-7  rounded-2xl shadow-xl border border-gray-100'>
+                    <div className='bg-blue-500 w-10 h-10 rounded flex items-center justify-center'>
+                        <img src={tasky as string} alt='tasky logo'/>
+                    </div>
                     <div className='w-full flex flex-col items-center'>
                         <h1 className='text-2xl font-semibold tracking-wide'>Let's get started!</h1>
                         <p className='text-sm text-gray-600'>Please enter your details</p>
