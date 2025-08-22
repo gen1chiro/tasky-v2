@@ -2,8 +2,26 @@ import {FaGithub} from "react-icons/fa"
 import {FaTwitter} from "react-icons/fa6"
 import {FaLinkedin} from "react-icons/fa6"
 import tasky from '../../assets/tasky.png'
+import React from "react"
 
-const Footer = () => {
+interface FooterProps {
+    refs: {
+        hero: React.RefObject<HTMLDivElement | null>
+        features: React.RefObject<HTMLDivElement | null>
+        pricing: React.RefObject<HTMLDivElement | null>
+        faq: React.RefObject<HTMLDivElement | null>
+    }
+}
+
+const Footer = ({refs}: FooterProps) => {
+    const {hero, features, pricing, faq} = refs
+
+    const scrollToSection = (sectionRef: React.RefObject<HTMLDivElement | null>) => {
+        if (sectionRef.current) {
+            sectionRef.current.scrollIntoView({behavior: 'smooth'});
+        }
+    }
+
     return (
         <footer className="w-full mb-4">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between w-11/12 max-w-7xl mx-auto py-8 gap-8">
@@ -21,10 +39,18 @@ const Footer = () => {
                     <div>
                         <h2 className='font-medium pb-1'>Quick Links</h2>
                         <ul className='text-xs text-gray-600 space-y-2'>
-                            <li>Product</li>
-                            <li>Features</li>
-                            <li>Pricing</li>
-                            <li>FAQ</li>
+                            <li className='hover:font-medium'>
+                                <button onClick={() => scrollToSection(hero)}>Product</button>
+                            </li>
+                            <li className='hover:font-medium'>
+                                <button onClick={() => scrollToSection(features)}>Features</button>
+                            </li>
+                            <li className='hover:font-medium'>
+                                <button onClick={() => scrollToSection(pricing)}>Pricing</button>
+                            </li>
+                            <li className='hover:font-medium'>
+                                <button onClick={() => scrollToSection(faq)}>FAQ</button>
+                            </li>
                         </ul>
                     </div>
                     <div>
@@ -44,20 +70,19 @@ const Footer = () => {
                     </div>
                     <div>
                         <h2 className='font-medium pb-1'>Socials</h2>
-                        <ul className='text-xs text-gray-600 space-y-2'>
-                            <li className='flex items-center gap-2'>
-                                <FaGithub className='text-gray-600 hover:text-gray-800 transition-colors duration-200'/>
-                                <span>GitHub</span>
+                        <ul className='text-xs text-gray-600 flex items-center gap-2'>
+                            <li>
+                                <a href='https://github.com/gen1chiro/tasky-v2'
+                                   target='_blank'
+                                   rel='noopener noreferrer'>
+                                    <FaGithub className='text-gray-600 hover:text-gray-800 transition-colors duration-200'/>
+                                </a>
                             </li>
-                            <li className='flex items-center gap-2'>
-                                <FaTwitter
-                                    className='text-gray-600 hover:text-blue-500 transition-colors duration-200'/>
-                                <span>Twitter</span>
+                            <li>
+                                <FaTwitter className='text-gray-600 hover:text-blue-500 transition-colors duration-200'/>
                             </li>
-                            <li className='flex items-center gap-2'>
-                                <FaLinkedin
-                                    className='text-gray-600 hover:text-blue-700 transition-colors duration-200'/>
-                                <span>LinkedIn</span>
+                            <li>
+                                <FaLinkedin className='text-gray-600 hover:text-blue-700 transition-colors duration-200'/>
                             </li>
                         </ul>
                     </div>

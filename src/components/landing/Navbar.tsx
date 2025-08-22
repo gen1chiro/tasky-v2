@@ -1,7 +1,25 @@
 import {Link} from "react-router-dom"
 import tasky from '../../assets/tasky.png'
+import React from "react"
 
-const Navbar = () => {
+interface NavbarProps {
+    refs: {
+        hero: React.RefObject<HTMLDivElement | null>
+        features: React.RefObject<HTMLDivElement | null>
+        pricing: React.RefObject<HTMLDivElement | null>
+        faq: React.RefObject<HTMLDivElement | null>
+    }
+}
+
+const Navbar = ({refs}: NavbarProps) => {
+    const {hero, features, pricing, faq} = refs
+
+    const scrollToSection = (sectionRef: React.RefObject<HTMLDivElement | null>) => {
+        if (sectionRef.current) {
+            sectionRef.current.scrollIntoView({behavior: 'smooth'});
+        }
+    }
+
     return (
         <header className="sticky top-4 z-10 w-full flex items-center justify-center">
             <nav
@@ -10,10 +28,18 @@ const Navbar = () => {
                     <img src={tasky as string} alt="tasky" />
                 </Link>
                 <ul className='hidden sm:flex items-center gap-4 text-sm cursor-pointer'>
-                    <li className='hover:font-medium'>Product</li>
-                    <li className='hover:font-medium'>Features</li>
-                    <li className='hover:font-medium'>Pricing</li>
-                    <li className='hover:font-medium'>FAQ</li>
+                    <li className='hover:font-medium'>
+                        <button onClick={() => scrollToSection(hero)}>Product</button>
+                    </li>
+                    <li className='hover:font-medium'>
+                        <button onClick={() => scrollToSection(features)}>Features</button>
+                    </li>
+                    <li className='hover:font-medium'>
+                        <button onClick={() => scrollToSection(pricing)}>Pricing</button>
+                    </li>
+                    <li className='hover:font-medium'>
+                        <button onClick={() => scrollToSection(faq)}>FAQ</button>
+                    </li>
                 </ul>
                 <div className='flex items-center gap-2'>
                     <Link to="/sign-up"

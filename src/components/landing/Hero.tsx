@@ -1,13 +1,23 @@
 import {Link} from "react-router-dom"
-import React from "react"
 import heroImage from "../../assets/hero.png"
 import heroImageMobile from "../../assets/hero2.png"
+import {HiLightningBolt} from "react-icons/hi"
+import React from "react"
 
-const Hero = () => {
+interface HeroProps {
+    ref: React.Ref<HTMLDivElement>
+}
+
+const Hero = ({ref}: HeroProps) => {
     return (
         <div
+            ref={ref}
             className="flex flex-col items-center justify-between h-auto w-11/12 max-w-7xl rounded-3xl bg-white [background:radial-gradient(100%_175%_at_50%_40%,#fff_40%,#60a5fa_100%)]">
             <div className="flex flex-grow flex-col items-center justify-center text-center gap-6 pt-18 pb-10 lg:pb-14">
+                <p className="w-fit px-2 py-[1px] text-center bg-blue-500 text-white text-xs rounded-full flex items-center gap-1">
+                    <HiLightningBolt/>
+                    Product
+                </p>
                 <h1 className="w-5/6 md:w-1/2 text-3xl lg:text-5xl font-semibold text-zinc-800 tracking-tight">The
                     smarter way to plan, track, and complete your work</h1>
                 <p className="w-5/6 md:w-1/2 text-xs md:text-sm text-gray-600">From personal to-dos to complex team
