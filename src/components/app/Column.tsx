@@ -141,12 +141,12 @@ const Column = ({column, boardId}: ColumnProps) => {
                             >
                                 <button onClick={showDeleteModal}
                                         className='w-full text-left px-2 py-1 hover:bg-gray-100 flex items-center gap-1'>
-                                    <MdDelete />
+                                    <MdDelete/>
                                     Delete
                                 </button>
                                 <button onClick={showEditModal}
                                         className='w-full text-left px-2 py-1 hover:bg-gray-100 flex items-center gap-1'>
-                                    <MdModeEditOutline />
+                                    <MdModeEditOutline/>
                                     Edit
                                 </button>
                             </div>
@@ -213,7 +213,9 @@ const Column = ({column, boardId}: ColumnProps) => {
                     <div className='flex flex-col'>
                         <label htmlFor='date' className='text-sm'>Due Date</label>
                         <input id='date' name='dueDate' type='date'
-                               className='px-2 text-gray-600 border-gray-300 border rounded'/>
+                               className='px-2 text-gray-600 border-gray-300 border rounded'
+                               required
+                        />
                     </div>
                     <div className='flex flex-col'>
                         <label htmlFor='priority' className='text-sm'>Priority Level</label>
