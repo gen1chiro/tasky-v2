@@ -6,17 +6,18 @@ import BoardHeader from "../components/app/BoardHeader.tsx"
 const BoardPage = () => {
     const { boardInfo, initialBoardData } = useLoaderData()
     const { boardId } = useParams<{ boardId: string }>()
+    const id = boardId!
     const boardName = boardInfo?.name || "Untitled Board"
 
     return (
         <main className='w-full h-screen flex flex-col'>
-            <BoardHeader boardName={boardName} boardId={boardId}/>
+            <BoardHeader boardName={boardName} boardId={id}/>
             <Suspense fallback={<BoardSkeleton /> as ReactNode}>
                 <Await resolve={initialBoardData}>
                     {(initialData) => (
                         <Board
                             initialBoardData={initialData}
-                            boardId={boardId}
+                            boardId={id}
                         /> as ReactNode
                     )}
                 </Await>
