@@ -7,7 +7,12 @@ import ModalMessage from "./modal/ModalMessage.tsx"
 import {MdLink} from "react-icons/md"
 import tasky from '../../assets/tasky.png'
 
-const BoardHeader = ({boardName, boardId}) => {
+interface BoardHeaderProps {
+    boardName: string
+    boardId: string
+}
+
+const BoardHeader = ({boardName, boardId}: BoardHeaderProps) => {
     const [name, setName] = useState<string>(boardName)
     const [isEditing, setIsEditing] = useState<boolean>(false)
     const shareModalRef = useRef<HTMLDialogElement | null>(null)

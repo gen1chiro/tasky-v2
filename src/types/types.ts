@@ -10,6 +10,7 @@ export type Board = {
 }
 
 export type Task = {
+    id: string
     columnId: string
     createdAt: Timestamp
     name: string
@@ -23,6 +24,7 @@ export type Column = {
     id: string
     name: string
     position: number
+    tasks: Task[]
     createdAt: Timestamp
 }
 

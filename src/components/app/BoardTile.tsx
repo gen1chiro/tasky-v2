@@ -1,8 +1,14 @@
 import {useNavigate} from "react-router-dom"
 import {MdDelete} from "react-icons/md"
 import {FaChevronRight} from "react-icons/fa"
+import type {Board} from "../../types/types.ts"
 
-const BoardTile = ({board, showModal}) => {
+interface BoardTileProps {
+    board: Board
+    showModal: (boardId: string) => void
+}
+
+const BoardTile = ({board, showModal}: BoardTileProps) => {
     const {id, name, color} = board
     const navigate = useNavigate()
 

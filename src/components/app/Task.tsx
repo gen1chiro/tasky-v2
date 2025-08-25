@@ -10,8 +10,18 @@ import {CiFlag1} from "react-icons/ci"
 import {RxDragHandleDots2} from "react-icons/rx"
 import TaskModal from "./modal/TaskModal.tsx"
 import {MdDelete} from "react-icons/md"
+import type {Task as TaskType} from "../../types/types.ts"
 
-const Task = ({task, boardId}) => {
+interface TaskProps {
+    task: TaskType
+    boardId: string
+}
+
+interface TaskPreviewProps {
+    task: TaskType
+}
+
+const Task = ({task, boardId}: TaskProps) => {
     const deleteModalRef = useRef<HTMLDialogElement | null>(null)
     const taskModalRef = useRef<HTMLDialogElement | null>(null)
     const date = formatDate(task.dueDate)
@@ -113,7 +123,7 @@ const Task = ({task, boardId}) => {
 
 export default Task
 
-export const TaskPreview = ({task}) => {
+export const TaskPreview = ({task}: TaskPreviewProps) => {
     const date = formatDate(task.dueDate)
     const priority = formatPriority(task.priority)
 

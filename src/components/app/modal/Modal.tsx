@@ -1,6 +1,13 @@
+import React from "react"
 
-const Modal = ({children, ref, onClose}) => {
-    const handleBackdropClick = (event) => {
+interface ModalProps {
+    children: React.ReactNode
+    ref: React.RefObject<HTMLDialogElement | null>
+    onClose: () => void
+}
+
+const Modal = ({children, ref, onClose}: ModalProps) => {
+    const handleBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
         if (event.target === event.currentTarget) {
             onClose()
         }

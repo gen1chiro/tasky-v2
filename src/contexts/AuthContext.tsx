@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { onAuthStateChanged, type User } from "firebase/auth"
 import { auth } from "../firebase/firebase"
 
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }: {children: ReactNode}) => {
     const [isUserLoggedIn, setISUserLoggedIn] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(true)
 
-    const initializeUser = async (user) => {
+    const initializeUser = (user: User | null) => {
         if (user) {
             setUser(user)
             setISUserLoggedIn(true)

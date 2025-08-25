@@ -1,20 +1,30 @@
-import {useState, useRef, useEffect} from "react";
+import {useState, useRef, useEffect} from "react"
 import {useDroppable} from "@dnd-kit/core"
 import {useSortable, SortableContext, verticalListSortingStrategy} from "@dnd-kit/sortable"
 import {CSS} from "@dnd-kit/utilities"
 import {deleteColumn, editColumn} from "../../firebase/firestore/columns.ts"
 import {addTask} from "../../firebase/firestore/tasks.ts"
 import Task, {TaskPreview} from "./Task.tsx"
-import type {Column} from "../../types/types.ts"
+import type {Column as ColumnType} from "../../types/types.ts"
 import Modal from "./modal/Modal.tsx"
 import ModalHeader from "./modal/ModalHeader.tsx"
 import ModalMessage from "./modal/ModalMessage.tsx"
 import {IoIosAdd} from "react-icons/io"
 import {SlOptionsVertical} from "react-icons/sl"
-import { MdDelete, MdModeEditOutline } from "react-icons/md"
+import {MdDelete, MdModeEditOutline} from "react-icons/md"
 
-const Column = ({column, tasks, boardId}: { column: Column }) => {
+interface ColumnProps {
+    column: ColumnType
+    boardId: string
+}
+
+interface ColumnPreviewProps {
+    column: ColumnType
+}
+
+const Column = ({column, boardId}: ColumnProps) => {
     const [showColumnPopover, setShowColumnPopover] = useState<boolean>(false)
+    const tasks = column.tasks || []
     const popoverRef = useRef<HTMLDivElement | null>(null)
     const deleteModalRef = useRef<HTMLDialogElement | null>(null)
     const addTaskRef = useRef<HTMLDialogElement | null>(null)
@@ -60,7 +70,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
         editModalRef.current?.close()
     }
 
-    const handleEdit = async (data) => {
+    const handleEdit = async (data: FormData) => {
         hideEditModal()
         const columnName = data.get('name')
         await editColumn(boardId as string, column.id, columnName, "name")
@@ -74,7 +84,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
         addTaskRef.current?.close()
     }
 
-    const handleAddTask = async (data) => {
+    const handleAddTask = async (data: FormData) => {
         hideAddTaskModal()
         const task = Object.fromEntries(data)
         await addTask(boardId as string, column.id, task)
@@ -230,7 +240,7 @@ const Column = ({column, tasks, boardId}: { column: Column }) => {
 
 export default Column
 
-export const ColumnPreview = ({column}) => {
+export const ColumnPreview = ({column}: ColumnPreviewProps) => {
     return (
         <div className="flex flex-col items-center gap-4 min-w-sm max-w-sm bg-slate-100 p-3 rounded-xl shadow-md">
             <div className="w-full flex items-center justify-between">

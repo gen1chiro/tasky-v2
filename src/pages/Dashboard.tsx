@@ -46,10 +46,9 @@ const Dashboard = () => {
         return () => unsubscribe()
     }, [user])
 
-    const showDeleteModal = (id) => {
+    const showDeleteModal = (id: string) => {
         deleteModalRef.current?.showModal()
         activeBoardId = id
-        console.log(activeBoardId)
     }
 
     const hideDeleteModal = () => {
@@ -69,12 +68,12 @@ const Dashboard = () => {
         addModalRef.current?.close()
     }
 
-    const handleAdd = async (data) => {
+    const handleAdd = async (data: FormData) => {
         hideAddModal()
         const {name, color, option} = Object.fromEntries(data)
         const includeDefaults = option === 'on'
 
-        if (user) await createBoard(user.uid, name, includeDefaults, color)
+        if (user) await createBoard(user.uid, name as string, includeDefaults, color as string)
     }
 
     const userBoardElements = userBoards.map(board => (

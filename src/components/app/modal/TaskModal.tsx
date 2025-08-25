@@ -1,9 +1,18 @@
-import {useState} from "react"
+import React, {useState} from "react"
 import Modal from "./Modal.tsx"
 import {MdModeEditOutline} from "react-icons/md"
 import {editTask} from "../../../firebase/firestore/tasks.ts"
+import type {Task} from "../../../types/types.ts"
 
-const TaskModal = ({children, ref, task, hide, boardId}) => {
+interface TaskModalProps {
+    children: React.ReactNode
+    ref: React.RefObject<HTMLDialogElement | null>
+    task: Task
+    hide: () => void
+    boardId: string
+}
+
+const TaskModal = ({children, ref, task, hide, boardId}: TaskModalProps) => {
     const [taskName, setTaskName] = useState<string>(task.name)
     const [taskDescription, setTaskDescription] = useState<string>(task.description)
     const [taskDueDate, setTaskDueDate] = useState<string>(task.dueDate)

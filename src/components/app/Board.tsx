@@ -19,10 +19,16 @@ import Modal from "./modal/Modal.tsx"
 import ModalHeader from "./modal/ModalHeader.tsx"
 import ModalMessage from "./modal/ModalMessage.tsx"
 import {IoIosAdd} from "react-icons/io"
+import type {Column as ColumnType, Task as TaskType} from "../../types/types.ts"
 
-const Board = ({ initialBoardData, boardId }) => {
+interface BoardProps {
+    initialBoardData: ColumnType[]
+    boardId: string
+}
+
+const Board = ({ initialBoardData, boardId }: BoardProps) => {
     const [columns, setColumns] = useState(initialBoardData || [])
-    const [activeTask, setActiveTask] = useState<string>(null)
+    const [activeTask, setActiveTask] = useState<TaskType | null>(null)
     const [activeColumn, setActiveColumn] = useState(null)
     const lastColumnId = useRef<string | null>(null)
     const addColumnRef = useRef<HTMLDialogElement | null>(null)
@@ -51,8 +57,8 @@ const Board = ({ initialBoardData, boardId }) => {
                         id: taskDoc.id,
                         columnId: doc.id,
                         ...taskDoc.data()
-                    }))
-                }
+                    })) as TaskType[]
+                } as ColumnType
             })
 
             const updatedColumns = await Promise.all(columnPromises)
@@ -81,7 +87,7 @@ const Board = ({ initialBoardData, boardId }) => {
                         col.id === column.id
                             ? {...col, tasks: updatedTasks}
                             : col
-                    )
+                    ) as ColumnType[]
                 )
             })
         })
@@ -96,7 +102,7 @@ const Board = ({ initialBoardData, boardId }) => {
         addColumnRef.current?.close()
     }
 
-    const handleAddColumn = async (data) => {
+    const handleAddColumn = async (data: FormData) => {
         hideAddColumnModal()
         const column = Object.fromEntries(data)
         await addColumn(boardId as string, column)
@@ -104,7 +110,7 @@ const Board = ({ initialBoardData, boardId }) => {
 
     const columnElements = columns.map((column) => {
         return (
-            <Column key={column.id} boardId={boardId} column={column} tasks={column.tasks}/>
+            <Column key={column.id} boardId={boardId} column={column}/>
         )
     })
 

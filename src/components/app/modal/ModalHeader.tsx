@@ -1,5 +1,10 @@
+import React from "react"
 
-const ModalHeader = ({children}) => {
+interface ModalHeaderProps {
+    children: React.ReactNode
+}
+
+const ModalHeader = ({children}: ModalHeaderProps) => {
     return (
         <h1 className="text-left w-full font-semibold text-md">
             {children}
