@@ -1,5 +1,5 @@
 import React, {useState} from "react"
-import {Link, Navigate} from "react-router-dom"
+import {Link, useLocation, useNavigate} from "react-router-dom"
 import {useAuth} from "../../../contexts/AuthContext.tsx"
 import {handleSignUp} from "../../../firebase/auth.ts"
 import {FirebaseError} from "firebase/app"
@@ -12,6 +12,9 @@ const SignUp = () => {
     const [isSigningUp, setIsSigningUp] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
     const {isUserLoggedIn} = useAuth()
+    const navigate = useNavigate()
+    const location = useLocation()
+    const from = location.state?.from?.pathname || '/app'
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -47,7 +50,7 @@ const SignUp = () => {
 
     return (
         <>
-            {isUserLoggedIn && <Navigate to='/app' replace/>}
+            {isUserLoggedIn && navigate(from, {replace: true})}
             <main className='w-full h-screen flex items-center justify-center bg-white bg-[radial-gradient(100%_150%_at_50%_50%,rgba(0,163,255,0.13)_0,rgba(0,163,255,0)_50%,rgba(0,163,255,0)_100%)]'>
                 <div
                     className='w-11/12 max-w-sm bg-white flex flex-col items-center gap-6 py-4 px-7  rounded-2xl shadow-xl border border-gray-100'>
