@@ -1,9 +1,11 @@
+import type {Dispatch, MutableRefObject, SetStateAction} from "react"
 import type {DragEndEvent, DragStartEvent} from "@dnd-kit/core"
 import {arrayMove} from "@dnd-kit/sortable"
 import {addTaskAtPosition, deleteTask, editTask} from "../../firebase/firestore/tasks.ts"
 import {editColumn} from "../../firebase/firestore/columns.ts"
+import type {Column, Task} from "../../types/types.ts"
 
-const findColumn = (id, columns) => {
+const findColumn = (id: string, columns: Column[]) => {
     const container = columns.find(column => column.id === id)
     if (container) return container
 
@@ -12,36 +14,49 @@ const findColumn = (id, columns) => {
     )
 }
 
-const isColumn = (id, columns) => {
+const isColumn = (id: string, columns: Column[]) => {
     return columns.some(column => column.id === id)
 }
 
-export const handleDragStart = (event: DragStartEvent, columns, setActiveColumn, lastColumnId, setActiveTask) => {
+export const handleDragStart = (
+    event: DragStartEvent, columns: Column[],
+    setActiveColumn: Dispatch<SetStateAction<Column | null>>,
+    lastColumnId: MutableRefObject<string | null>,
+    setActiveTask: Dispatch<SetStateAction<Task | null>>
+) => {
     const {active} = event
     const {id} = active
 
-    if (isColumn(id, columns)) {
-        const column = findColumn(id, columns)
-        setActiveColumn(column)
+    if (isColumn(id as string, columns)) {
+        const column = findColumn(id as string, columns)
+        setActiveColumn(column || null)
     } else {
         lastColumnId.current = active.data.current?.columnId as string
         const column = findColumn(lastColumnId.current, columns)
         const task = column?.tasks.find(task => task.id === id)
-        setActiveTask(task)
+        setActiveTask(task || null)
     }
 }
 
-export const handleDragEnd = async (event: DragEndEvent, columns, setColumns, lastColumnId, boardId, setActiveTask, setActiveColumn) => {
+export const handleDragEnd = async (
+    event: DragEndEvent,
+    columns: Column[],
+    setColumns: Dispatch<SetStateAction<Column[]>>,
+    lastColumnId:  MutableRefObject<string | null>,
+    boardId: string,
+    setActiveTask: Dispatch<SetStateAction<Task | null>>,
+    setActiveColumn: Dispatch<SetStateAction<Column | null>>
+) => {
     //In column task DND
     const {active, over} = event
     const {id} = active
     const overId = over ? over.id : null
 
-    const activeContainer = findColumn(id, columns)
-    const overContainer = findColumn(overId, columns)
+    const activeContainer = findColumn(id as string, columns)
+    const overContainer = findColumn(overId as string, columns)
     //const previousContainer = findColumn(lastColumnId.current)
 
-    if (!activeContainer || !overContainer || isColumn(id, columns)) {
+    if (!activeContainer || !overContainer || isColumn(id as string, columns)) {
         return
     }
 
@@ -74,7 +89,7 @@ export const handleDragEnd = async (event: DragEndEvent, columns, setColumns, la
             )
         )
     } else {
-        const movedItem = overContainer.tasks.find(task => task.id === id)
+        const movedItem = overContainer.tasks.find(task => task.id === id) as Task
 
         await deleteTask(boardId as string, lastColumnId.current as string, movedItem.id)
         await Promise.all(
@@ -93,20 +108,25 @@ export const handleDragEnd = async (event: DragEndEvent, columns, setColumns, la
     setActiveColumn(null)
 }
 
-export const handleDragOver = async (event, columns, setColumns, boardId) => {
+export const handleDragOver = async (
+    event: DragEndEvent,
+    columns: Column[],
+    setColumns: Dispatch<SetStateAction<Column[]>>,
+    boardId: string
+) => {
     const {active, over} = event
     const {id} = active
     const overId = over ? over.id : null
 
     // Handle container reordering
-    if (isColumn(id, columns)) {
+    if (isColumn(id as string, columns)) {
         if (!over) return
 
         let targetContainerId = overId
 
         // If hovering over an item, find its parent container
-        if (!isColumn(overId, columns)) {
-            const overContainer = findColumn(overId, columns)
+        if (!isColumn(overId as string, columns)) {
+            const overContainer = findColumn(overId as string, columns)
             if (!overContainer) return
             targetContainerId = overContainer.id
         }
@@ -119,15 +139,15 @@ export const handleDragOver = async (event, columns, setColumns, boardId) => {
 
         await Promise.all(
             newColumns.map((column, index) =>
-                editColumn(boardId as string, column.id, index, "position")
+                editColumn(boardId, column.id, index, "position")
             )
         )
 
         return
     }
     // Cross column task DND
-    const activeContainer = findColumn(id, columns)
-    const overContainer = findColumn(overId, columns)
+    const activeContainer = findColumn(id as string, columns)
+    const overContainer = findColumn(overId as string, columns)
 
     if (!activeContainer || !overContainer || activeContainer.id === overContainer.id) {
         return
@@ -139,12 +159,14 @@ export const handleDragOver = async (event, columns, setColumns, boardId) => {
     const activeIndex = activeItems.findIndex((task) => task.id === id)
     const overIndex = overItems.findIndex((task) => task.id === overId)
 
+    const activeTop = active.rect.current.translated?.top ?? active.rect.current.initial?.top ?? 0;
+
     let newIndex
     if (overId) {
         const isBelowLastItem =
             over &&
             overIndex === overItems.length - 1 &&
-            active.rect.offsetTop > over.rect.offsetTop + over.rect.height
+            activeTop > over.rect.top + over.rect.height
 
         const modifier = isBelowLastItem ? 1 : 0
 

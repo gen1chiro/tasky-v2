@@ -41,7 +41,7 @@ export const deleteColumn = async (boardId: string, columnId: string) => {
     }
 }
 
-export const editColumn = async (boardId: string, columnId: string, newValue: string, key: keyof Column) => {
+export const editColumn = async (boardId: string, columnId: string, newValue: string | number, key: keyof Column) => {
     try {
         const columnDocRef = doc(db, 'boards', boardId, 'columns', columnId)
         await updateDoc(columnDocRef, {

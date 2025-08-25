@@ -54,7 +54,7 @@ export const addTaskAtPosition = async (boardId: string, columnId: string, task:
     }
 }
 
-export const editTask = async (boardId: string, columnId: string, taskId: string, newValue: string, key: keyof Task) => {
+export const editTask = async (boardId: string, columnId: string, taskId: string, newValue: string | number, key: keyof Task) => {
     try {
         const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', taskId)
         await updateDoc(taskDocRef, {

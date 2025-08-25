@@ -29,7 +29,7 @@ interface BoardProps {
 const Board = ({ initialBoardData, boardId }: BoardProps) => {
     const [columns, setColumns] = useState(initialBoardData || [])
     const [activeTask, setActiveTask] = useState<TaskType | null>(null)
-    const [activeColumn, setActiveColumn] = useState(null)
+    const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null)
     const lastColumnId = useRef<string | null>(null)
     const addColumnRef = useRef<HTMLDialogElement | null>(null)
 
