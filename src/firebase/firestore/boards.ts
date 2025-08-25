@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore'
 import type {Board} from "../../types/types.ts"
 import requireAuth from "../uitls/requireAuth.ts"
+import type {User} from "firebase/auth"
 
 export const createBoard = async (userUID: string, boardName: string, includeDefaults: boolean, color: string) => {
     try {
@@ -68,7 +69,7 @@ export const deleteBoard = async (boardId: string) => {
     }
 }
 
-export const renameBoard = async (boardId: string, newName) => {
+export const renameBoard = async (boardId: string, newName: string) => {
     try {
         await updateDoc(doc(db, 'boards', boardId), {
             name: newName
@@ -78,35 +79,9 @@ export const renameBoard = async (boardId: string, newName) => {
     }
 }
 
-/*
-export const getBoardsByUser = async (userUID: string) => {
-    try {
-        const q = query(
-            collection(db, 'boards'),
-            or(
-                where('owner', '==', userUID),
-                where('members', 'array-contains', userUID)
-            )
-        )
-
-        const snapshot = await getDocs(q)
-
-        return snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data() as Omit<Board, "id">
-        }))
-
-    } catch (err) {
-        console.error('Error fetching boards:', err)
-        throw new Error('Failed to fetch boards')
-    }
-}
-*/
-
 export const boardLoader = async ({params}: { params: { boardId: string } }) => {
     const {boardId} = params
-    const user = await requireAuth()
-
+    const user = await requireAuth() as User
 
     const boardDoc = await getDoc(doc(db, 'boards', boardId))
     const data = boardDoc.data() as Board

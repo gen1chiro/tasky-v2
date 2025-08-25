@@ -11,7 +11,7 @@ export const handleSignUp = async (email: string, password: string) => {
     const userCredentials = await createUserWithEmailAndPassword(auth, email, password)
     const user = userCredentials.user
 
-    await saveUserToDatabase(user.uid, user.email)
+    await saveUserToDatabase(user.uid, user.email as string)
 
     return userCredentials
 }
@@ -25,7 +25,7 @@ export const handleSignInWithGoogle = async () => {
     const userCredentials =  await signInWithPopup(auth, provider)
     const user = userCredentials.user
 
-    await saveUserToDatabase(user.uid, user.email)
+    await saveUserToDatabase(user.uid, user.email as string)
 
     return userCredentials
 }

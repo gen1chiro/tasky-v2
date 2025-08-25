@@ -73,7 +73,7 @@ const Column = ({column, boardId}: ColumnProps) => {
     const handleEdit = async (data: FormData) => {
         hideEditModal()
         const columnName = data.get('name')
-        await editColumn(boardId as string, column.id, columnName, "name")
+        await editColumn(boardId as string, column.id, columnName as string, "name")
     }
 
     const showAddTaskModal = () => {
@@ -212,7 +212,7 @@ const Column = ({column, boardId}: ColumnProps) => {
                     </div>
                     <div className='flex flex-col'>
                         <label htmlFor='date' className='text-sm'>Due Date</label>
-                        <input id='date' name='date' type='date'
+                        <input id='date' name='dueDate' type='date'
                                className='px-2 text-gray-600 border-gray-300 border rounded'/>
                     </div>
                     <div className='flex flex-col'>

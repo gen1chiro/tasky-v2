@@ -12,7 +12,7 @@ import {
 import {db} from '../firebase.ts'
 import type {Task} from "../../types/types.ts"
 
-export const addTask = async (boardId: string, columnId: string, task) => {
+export const addTask = async (boardId: string, columnId: string, task: Partial<Task>) => {
     try {
         const taskCollectionRef = collection(db, 'boards', boardId, 'columns', columnId, 'tasks')
         const taskQuery = query(taskCollectionRef, orderBy('position', 'desc'))
@@ -24,7 +24,7 @@ export const addTask = async (boardId: string, columnId: string, task) => {
             name: task.name,
             description: task.description || '',
             priority: task.priority,
-            dueDate: task.date || '',
+            dueDate: task.dueDate || '',
             columnId: columnId,
             position: newTaskPosition,
             createdAt: serverTimestamp(),
@@ -35,10 +35,10 @@ export const addTask = async (boardId: string, columnId: string, task) => {
     }
 }
 
-export const addTaskAtPosition = async (boardId: string, columnId: string, task, position: number) => {
+export const addTaskAtPosition = async (boardId: string, columnId: string, task: Partial<Task>, position: number) => {
     const {id, name, description} = task
     try {
-        const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', id)
+        const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', id as string)
         await setDoc(taskDocRef, {
             name: name,
             description: description || '',
@@ -54,10 +54,10 @@ export const addTaskAtPosition = async (boardId: string, columnId: string, task,
     }
 }
 
-export const editTask = async (boardId: string, columnId: string, taskId: string, newValue, key: keyof Task) => {
+export const editTask = async (boardId: string, columnId: string, taskId: string, newValue: string, key: keyof Task) => {
     try {
         const taskDocRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', taskId)
-        await updateDoc<Task>(taskDocRef, {
+        await updateDoc(taskDocRef, {
             [key]: newValue
         })
     } catch (err) {

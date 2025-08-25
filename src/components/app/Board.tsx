@@ -104,8 +104,8 @@ const Board = ({ initialBoardData, boardId }: BoardProps) => {
 
     const handleAddColumn = async (data: FormData) => {
         hideAddColumnModal()
-        const column = Object.fromEntries(data)
-        await addColumn(boardId as string, column)
+        const column = data.get("name")
+        await addColumn(boardId as string, column as string)
     }
 
     const columnElements = columns.map((column) => {
