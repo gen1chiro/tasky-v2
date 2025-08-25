@@ -14,6 +14,7 @@ import {
 import type {Board} from "../../types/types.ts"
 import requireAuth from "../uitls/requireAuth.ts"
 import type {User} from "firebase/auth"
+import type {LoaderFunctionArgs} from "react-router-dom"
 
 export const createBoard = async (userUID: string, boardName: string, includeDefaults: boolean, color: string) => {
     try {
@@ -79,8 +80,8 @@ export const renameBoard = async (boardId: string, newName: string) => {
     }
 }
 
-export const boardLoader = async ({params}: { params: { boardId: string } }) => {
-    const {boardId} = params
+export const boardLoader = async ({params}: LoaderFunctionArgs) => {
+    const boardId = params.boardId!
     const user = await requireAuth() as User
 
     const boardDoc = await getDoc(doc(db, 'boards', boardId))

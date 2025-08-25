@@ -7,7 +7,6 @@ import SignUp from "../components/app/auth/SignUp.tsx"
 import BoardPage from "../pages/BoardPage.tsx"
 import {boardLoader} from "../firebase/firestore/boards.ts"
 import {ErrorBoundary} from "../components/app/utils/ErrorBoundary.tsx"
-import type {ReactNode} from "react"
 import SharePage from "../pages/SharePage.tsx"
 
 const router = createBrowserRouter(
@@ -32,7 +31,7 @@ const router = createBrowserRouter(
                 <Route path="share" element={<SharePage/>}/>
                 <Route path=":boardId" element={<BoardPage/>} loader={boardLoader}/>
             </Route>
-        </Route> as ReactNode
+        </Route>
     )
 )
 
