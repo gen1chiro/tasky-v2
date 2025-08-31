@@ -1,4 +1,5 @@
 import {useState, Children, cloneElement, type ReactElement} from "react"
+import {motion} from "motion/react"
 
 interface AccordionProps {
     children: ReactElement<AccordionItemProps> | ReactElement<AccordionItemProps>[]
@@ -7,6 +8,16 @@ interface AccordionProps {
 interface AccordionItemProps {
     isOpen: boolean
     onToggle: () => void
+}
+
+const container = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.2
+        }
+    }
 }
 
 const Accordion = ({children}: AccordionProps) => {
@@ -24,9 +35,14 @@ const Accordion = ({children}: AccordionProps) => {
     )
 
     return (
-        <div className='w-full flex flex-col items-center justify-start gap-2'>
+        <motion.div
+            variants={container}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{once: true, amount: 0.5}}
+            className='w-full flex flex-col items-center justify-start gap-2'>
             {childElements}
-        </div>
+        </motion.div>
     )
 }
 

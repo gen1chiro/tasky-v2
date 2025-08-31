@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import PlanTile from './PlanTile.tsx'
 import type {Plan} from '../../types/types.ts'
+import {motion} from 'motion/react'
 
 const plans: Plan[] = [
     {
@@ -58,7 +59,12 @@ const Pricing = ({ref}: PricingProps) => {
     )
 
     return (
-        <div ref={ref} className="w-11/12 max-w-7xl flex flex-col items-center pt-14 gap-8">
+        <motion.div
+            initial={{opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{duration: 1}}
+            viewport={{once: true, amount: 0.5}}
+            ref={ref} className="w-11/12 max-w-7xl flex flex-col items-center pt-14 gap-8">
             <div className="w-5/6 md:w-1/2 flex flex-col items-center gap-3">
                 <p className="w-fit mx-auto px-2 text-center bg-blue-500 text-white text-xs rounded-full">Pricing</p>
                 <h1 className='w-full text-center text-xl md:text-3xl font-medium'>Simple pricing for everyone.</h1>
@@ -68,7 +74,7 @@ const Pricing = ({ref}: PricingProps) => {
             <div className="w-full md:w-5/6 flex flex-wrap md:flex-nowrap items-start justify-between gap-2 bg-slate-50 border border-gray-200 shadow rounded-3xl p-1">
                 {planElements}
             </div>
-        </div>
+        </motion.div>
     )
 }
 

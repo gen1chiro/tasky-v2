@@ -2,6 +2,7 @@ import type {Faq} from '../../types/types.tsx'
 import Accordion from "./accordion/Accordion.tsx"
 import AccordionItem from "./accordion/AccordionItem.tsx"
 import React from "react"
+import {motion} from "motion/react"
 
 const faqs: Faq[] = [
     {
@@ -36,7 +37,12 @@ interface FaqSectionProps {
 
 const FaqSection = ({ref}: FaqSectionProps) => {
     return (
-        <div ref={ref} className='w-11/12 max-w-7xl flex justify-center pt-16'>
+        <motion.div
+            initial={{opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{duration: 1}}
+            viewport={{once: true, amount: 0.5}}
+            ref={ref} className='w-11/12 max-w-7xl flex justify-center pt-16'>
             <div className="w-full md:w-5/6 flex flex-col lg:flex-row gap-x-4 gap-y-8">
                 <div className='w-full flex flex-col items-start gap-2'>
                     <p className="w-fit px-2 text-center bg-blue-500 mx-auto lg:mx-0 text-white text-xs rounded-full">FAQ</p>
@@ -55,7 +61,7 @@ const FaqSection = ({ref}: FaqSectionProps) => {
                     </Accordion>
                 </div>
             </div>
-        </div>
+        </motion.div>
     )
 }
 

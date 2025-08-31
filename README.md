@@ -13,6 +13,7 @@ Tasky v2 is a **modern task management web app** built with **React**, **Firebas
 - **Firebase** – Authentication, Firestore database, and hosting
 - **dnd-kit** – Drag-and-drop library for reordering and organizing tasks
 - **React Router v7** – Client-side routing for smooth navigation
+- **Framer Motion** – Animation library for React
 
 ---
 

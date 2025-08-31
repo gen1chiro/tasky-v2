@@ -18,7 +18,7 @@ const Modal = ({children, ref, onClose}: ModalProps) => {
         <dialog
             ref={ref}
             onClick={handleBackdropClick}
-            className="bg-white rounded-md shadow-lg w-96 backdrop-blur-sm fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            className="bg-white rounded-md shadow-lg w-96 h-fit backdrop-blur-sm fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         >
             <div className='w-full h-full p-4'>
                 {children}

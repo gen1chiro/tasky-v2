@@ -1,8 +1,14 @@
 import {Link} from 'react-router-dom'
+import {motion} from 'motion/react'
 
 const CtaBanner = () => {
     return (
-        <div className='flex items-center justify-center text-center w-11/12 max-w-7xl mx-auto rounded-3xl h-96 my-14 p-4 bg-gradient-to-br from-blue-100 via-blue-200 to-blue-600 '>
+        <motion.div
+            initial={{opacity: 0}}
+            whileInView={{ opacity: 1}}
+            transition={{duration: 1}}
+            viewport={{once: true, amount: 1}}
+            className='flex items-center justify-center text-center w-11/12 max-w-7xl mx-auto rounded-3xl h-96 my-14 p-4 bg-gradient-to-br from-blue-100 via-blue-200 to-blue-600 '>
             <div className='w-5/6 flex flex-col items-center gap-4'>
                 <h1 className='text-3xl md:text-4xl font-semibold'>Boost your productivity today</h1>
                 <p className='text-xs md:text-sm '>Start organizing tasks and collaborating with your team in real-time — for free.</p>
@@ -11,7 +17,7 @@ const CtaBanner = () => {
                     Get Started
                 </Link>
             </div>
-        </div>
+        </motion.div>
     )
 }
 

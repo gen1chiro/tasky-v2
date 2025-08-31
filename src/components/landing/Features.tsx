@@ -5,6 +5,7 @@ import feature3 from '../../assets/feature3.png'
 import feature4 from '../../assets/feature4.png'
 import feature5 from '../../assets/feature5.png'
 import React from "react"
+import {motion} from 'motion/react'
 
 interface FeaturesProps {
     ref: React.Ref<HTMLDivElement>
@@ -12,7 +13,12 @@ interface FeaturesProps {
 
 const Features = ({ref}: FeaturesProps) => {
     return (
-        <div ref={ref} className="w-11/12 max-w-7xl flex flex-col items-center gap-14 pt-14">
+        <motion.div
+            initial={{opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{duration: 1}}
+            viewport={{once: true, amount: 0.5}}
+            ref={ref} className="w-11/12 max-w-7xl flex flex-col items-center gap-14 pt-14">
             <div className="w-5/6 md:w-1/2 flex flex-col items-center gap-3">
                 <p className="w-fit mx-auto px-2 text-center bg-blue-500 text-white text-xs rounded-full">Features</p>
                 <h1 className='w-full text-center text-xl md:text-3xl font-medium'>Powerful features to simplify your task
@@ -103,7 +109,7 @@ const Features = ({ref}: FeaturesProps) => {
                     </FeatureTile>
                 </div>
             </div>
-        </div>
+        </motion.div>
     )
 }
 
