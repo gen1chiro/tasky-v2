@@ -29,7 +29,7 @@ const Hero = ({ref}: HeroProps) => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{duration: 1}}
+            transition={{duration: 2}}
             ref={ref}
             className="flex flex-col items-center justify-between h-auto w-11/12 max-w-7xl rounded-3xl bg-white [background:radial-gradient(100%_175%_at_50%_40%,#fff_40%,#60a5fa_100%)]">
             <motion.div
@@ -67,9 +67,9 @@ const Hero = ({ref}: HeroProps) => {
                 </motion.div>
             </motion.div>
             <img src={heroImage as string} alt="app"
-                 className="hidden lg:block rounded-t-3xl border border-gray-200 w-11/12 shadow-lg"/>
+                 className="hidden lg:block rounded-t-3xl border-[20px] border-b-0 border-gray-200/20 w-11/12 shadow-lg"/>
             <img src={heroImageMobile as string} alt="app"
-                 className="lg:hidden rounded-t-3xl border border-gray-200 w-11/12 shadow-lg"/>
+                 className="lg:hidden rounded-t-3xl border-[10px] md:border-[20px] border-b-0 md:border-b-0 border-gray-200/20 w-11/12 shadow-lg"/>
         </motion.div>
     )
 }
