@@ -110,8 +110,9 @@ const Dashboard = () => {
                 {userBoardElements.length > 0
                     ? <div
                         className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5  gap-4 flex-wrap'>{userBoardElements}</div>
-                    : <div className='text-gray-600 bg-gray-100 rounded w-full h-28 flex items-center justify-center'>No boards available.
-                        Create one to get started!</div>
+                    : <div className='text-gray-600 bg-gray-100 rounded w-full h-28 flex items-center justify-center p-4 text-center text-sm sm:text-md'>
+                        <div>No boards available. Create one to get started!</div>
+                    </div>
                 }
                 <div className='flex items-center gap-2 mt-8 mb-4'>
                     <p className='text-black text-lg'>Team Boards</p>
@@ -122,8 +123,9 @@ const Dashboard = () => {
                 {teamBoardElements.length > 0
                     ? <div
                         className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5  gap-4 flex-wrap'>{teamBoardElements}</div>
-                    : <div className='text-gray-600 bg-gray-100 rounded w-full h-28 mb-10 flex items-center justify-center'>No boards available.
-                        Create one to get started!</div>
+                    : <div className='text-gray-600 bg-gray-100 rounded w-full h-28 mb-10 flex items-center justify-center p-4 text-center text-sm sm:text-md'>
+                        <div>No team boards available. Open a shared link to get started!</div>
+                    </div>
                 }
             </main>
 

@@ -54,9 +54,9 @@ const SignUp = () => {
             <main className='w-full h-screen flex items-center justify-center bg-white bg-[radial-gradient(100%_150%_at_50%_50%,rgba(0,163,255,0.13)_0,rgba(0,163,255,0)_50%,rgba(0,163,255,0)_100%)]'>
                 <div
                     className='w-11/12 max-w-sm bg-white flex flex-col items-center gap-6 py-4 px-7  rounded-2xl shadow-xl border border-gray-100'>
-                    <div className='bg-blue-500 w-10 h-10 rounded flex items-center justify-center'>
+                    <Link to="/" className='bg-blue-500 w-10 h-10 rounded flex items-center justify-center'>
                         <img src={tasky as string} alt='tasky logo'/>
-                    </div>
+                    </Link>
                     <div className='w-full flex flex-col items-center'>
                         <h1 className='text-2xl font-semibold tracking-wide'>Let's get started!</h1>
                         <p className='text-sm text-gray-600'>Please enter your details</p>
